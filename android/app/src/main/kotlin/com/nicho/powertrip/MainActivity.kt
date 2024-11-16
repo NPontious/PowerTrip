@@ -1,4 +1,4 @@
-package com.example.dataview
+package com.nicho.powertrip
 
 import io.flutter.embedding.android.FlutterActivity
 

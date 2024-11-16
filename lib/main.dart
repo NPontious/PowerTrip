@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'custom_functions.dart';
 import 'pages/home_page_widget.dart';
+//import 'pages/trip_widget.dart';
 import 'theme.dart';
 
 void main() {
@@ -17,13 +18,13 @@ void main() {
     FlutterFlowTheme(
       themeData: ThemeData.light(), // Set your theme data here
       headlineMedium: const TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
-      headlineSmall: const TextStyle(fontSize: 16),
-      labelMedium: const TextStyle(fontSize: 14),
-      displaySmall: const TextStyle(fontSize: 12),
-      titleSmall: const TextStyle(fontSize: 12),
-      labelLarge: const TextStyle(fontSize: 16),
-      titleLarge: const TextStyle(fontSize: 20),
-      labelSmall: const TextStyle(fontSize: 10),
+      headlineSmall: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
+      labelMedium: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
+      displaySmall: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
+      titleSmall: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
+      labelLarge: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
+      titleLarge: const TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
+      labelSmall: const TextStyle(fontSize: 10, color: Color.fromARGB(255, 0, 0, 0)),
       alternate: Colors.green,
       accent1: Colors.blue,
       bodyMedium: const TextStyle(fontSize: 18),
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
       //debugShowCheckedModeBanner: false,
       //theme: ThemeData(fontFamily: 'Poppins'),
       home: HomePageWidget()
+      //home: TripWidget(key: Key("fds"), tripNum: 1,)
     );
   }
 }

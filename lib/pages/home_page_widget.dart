@@ -98,109 +98,111 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                child: Card(
-                  clipBehavior: Clip.antiAliasWithSaveLayer,
-                  color: FlutterFlowTheme.of(context).primaryBackground,
-                  elevation: 0.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 10.0, 0.0),
-                              child: Icon(
-                                Icons.electric_bolt,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 30.0,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    color: FlutterFlowTheme.of(context).primaryBackground,
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisSize: MainAxisSize.min,  // Ensures the Row does not try to take infinite width
+                            children: [
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 10.0, 0.0),
+                                child: Icon(
+                                  Icons.electric_bolt,
+                                  color: FlutterFlowTheme.of(context).primaryText,
+                                  size: 30.0,
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: CircularPercentIndicator(
-                                  percent: random_data.randomDouble(0.0, 1.0),
-                                  radius: 50.0,
-                                  lineWidth: 15.0,
-                                  animation: true,
-                                  animateFromLastPercent: true,
-                                  progressColor: const Color(0xFF3099F8),
-                                  center: Text(
-                                    formatNumber(
-                                      random_data.randomDouble(0.0, 1.0),
-                                      formatType: FormatType.percent
+                              Flexible(  // Using Flexible instead of Expanded
+                                fit: FlexFit.loose,  // Allows the child to take less than available space
+                                child: Padding(
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: CircularPercentIndicator(
+                                    percent: random_data.randomDouble(0.0, 1.0),
+                                    radius: 50.0,
+                                    lineWidth: 15.0,
+                                    animation: true,
+                                    animateFromLastPercent: true,
+                                    progressColor: const Color(0xFF3099F8),
+                                    center: Text(
+                                      formatNumber(
+                                        random_data.randomDouble(0.0, 1.0),
+                                        formatType: FormatType.percent,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineSmall
+                                          .override(
+                                            fontFamily: 'Inter Tight',
+                                            letterSpacing: 0.0,
+                                          ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    style: FlutterFlowTheme.of(context)
-                                        .headlineSmall
-                                        .override(
-                                          fontFamily: 'Inter Tight',
-                                          letterSpacing: 0.0,
-                                        ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 100.0,
-                          child: VerticalDivider(
-                            thickness: 2.0,
-                            color: FlutterFlowTheme.of(context).secondaryText,
+                            ],
                           ),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                  0.0, 0.0, 10.0, 0.0),
-                              child: Icon(
-                                Icons.local_gas_station,
-                                color: FlutterFlowTheme.of(context).primaryText,
-                                size: 30.0,
-                              ),
+                          SizedBox(
+                            height: 100.0,
+                            child: VerticalDivider(
+                              thickness: 2.0,
+                              color: FlutterFlowTheme.of(context).secondaryText,
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(0.0),
-                                child: CircularPercentIndicator(
-                                  percent: random_data.randomDouble(0.0, 1.0),
-                                  radius: 50.0,
-                                  lineWidth: 15.0,
-                                  animation: true,
-                                  animateFromLastPercent: true,
-                                  progressColor:
-                                      FlutterFlowTheme.of(context).primaryText,
-                                  center: Text(
-                                    formatNumber(
-                                      random_data.randomDouble(0.0, 1.0),
-                                      formatType: FormatType.percent
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,  // Ensures the Row does not try to take infinite width
+                            children: [
+                              Padding(
+                                padding: const EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 10.0, 0.0),
+                                child: Icon(
+                                  Icons.local_gas_station,
+                                  color: FlutterFlowTheme.of(context).primaryText,
+                                  size: 30.0,
+                                ),
+                              ),
+                              Flexible(  // Using Flexible instead of Expanded
+                                fit: FlexFit.loose,  // Allows the child to take less than available space
+                                child: Padding(
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: CircularPercentIndicator(
+                                    percent: random_data.randomDouble(0.0, 1.0),
+                                    radius: 50.0,
+                                    lineWidth: 15.0,
+                                    animation: true,
+                                    animateFromLastPercent: true,
+                                    progressColor: FlutterFlowTheme.of(context).primaryText,
+                                    center: Text(
+                                      formatNumber(
+                                        random_data.randomDouble(0.0, 1.0),
+                                        formatType: FormatType.percent,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      style: FlutterFlowTheme.of(context)
+                                          .headlineSmall
+                                          .override(
+                                            fontFamily: 'Inter Tight',
+                                            letterSpacing: 0.0,
+                                          ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    style: FlutterFlowTheme.of(context)
-                                        .headlineSmall
-                                        .override(
-                                          fontFamily: 'Inter Tight',
-                                          letterSpacing: 0.0,
-                                        ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -276,22 +278,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   hoverColor: Colors.transparent,
                                   highlightColor: Colors.transparent,
                                   onTap: () async {
-                                    context.pushNamed(
-                                      'Trip',
-                                      queryParameters: removeNulls(<String, String>{
-                                        'tripNum': serializeParam(
-                                          tripIndex,
-                                          ParamType.int,
-                                        ),
-                                      }),
-                                      // extra: <String, dynamic>{
-                                      //   kTransitionInfoKey: TransitionInfo(
-                                      //     hasTransition: true,
-                                      //     transitionType:
-                                      //         PageTransitionType.rightToLeft,
-                                      //   ),
-                                      // },
-                                    );
+                                    // Use WidgetsBinding.addPostFrameCallback to defer navigation
+                                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                                      context.pushNamed(
+                                        'Trip',
+                                        queryParameters: removeNulls(<String, String>{
+                                          'tripNum': serializeParam(
+                                            tripIndex,
+                                            ParamType.int,
+                                          ),
+                                        }),
+                                      );
+                                    });
                                   },
                                   child: Container(
                                     width: double.infinity,
