@@ -1,56 +1,154 @@
-import 'package:flutter/gestures.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'custom_functions.dart';
-import 'pages/home_page_widget.dart';
-//import 'pages/trip_widget.dart';
-import 'theme.dart';
 
-void main() {
-  // await Supabase.initialize(
-  //   url: 'https://gbktozasdssjbueemfdt.supabase.co',
-  //   anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdia3RvemFzZHNzamJ1ZWVtZmR0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE3NzYwODYsImV4cCI6MjA0NzM1MjA4Nn0.lrpdw--LwFWrlXX6MTorj63-qDh_upeVKb_B_95JruQ',
-  // );
-  // final data = await readCsv("data.csv");
-  runApp(
-    FlutterFlowTheme(
-      themeData: ThemeData.light(), // Set your theme data here
-      headlineMedium: const TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
-      headlineSmall: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
-      labelMedium: const TextStyle(fontSize: 14, color: Color.fromARGB(255, 0, 0, 0)),
-      displaySmall: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
-      titleSmall: const TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
-      labelLarge: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
-      titleLarge: const TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
-      labelSmall: const TextStyle(fontSize: 10, color: Color.fromARGB(255, 0, 0, 0)),
-      alternate: Colors.green,
-      accent1: Colors.blue,
-      bodyMedium: const TextStyle(fontSize: 18),
-      bodySmall: const TextStyle(fontSize: 14),
-      info: Colors.grey,
-      primary: const Color.fromARGB(255, 75, 57, 239),
-      primaryText: const Color.fromARGB(255, 0, 0, 0),
-      secondaryText: const Color.fromARGB(255, 87, 99, 108),
-      primaryBackground: const Color.fromARGB(255, 241, 244, 248),
-      secondary: const Color.fromARGB(255, 57, 210, 192),
-      child: const MyApp(),
-    ),
-  );
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import '/flutter_flow/flutter_flow_theme.dart';
+import 'flutter_flow/flutter_flow_util.dart';
+import 'index.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
+  usePathUrlStrategy();
+
+  await FlutterFlowTheme.initialize();
+
+  final appState = FFAppState(); // Initialize FFAppState
+  await appState.initializePersistedState();
+
+  runApp(ChangeNotifierProvider(
+    create: (context) => appState,
+    child: const MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
+  State<MyApp> createState() => _MyAppState();
+
+  static _MyAppState of(BuildContext context) =>
+      context.findAncestorStateOfType<_MyAppState>()!;
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = FlutterFlowTheme.themeMode;
+
+  late AppStateNotifier _appStateNotifier;
+  late GoRouter _router;
+
+  bool displaySplashImage = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _appStateNotifier = AppStateNotifier.instance;
+    _router = createRouter(_appStateNotifier);
+
+    Future.delayed(const Duration(milliseconds: 1000),
+        () => safeSetState(() => _appStateNotifier.stopShowingSplashImage()));
+  }
+
+  void setThemeMode(ThemeMode mode) => safeSetState(() {
+        _themeMode = mode;
+        FlutterFlowTheme.saveThemeMode(mode);
+      });
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      //debugShowCheckedModeBanner: false,
-      //theme: ThemeData(fontFamily: 'Poppins'),
-      home: HomePageWidget()
-      //home: TripWidget(key: Key("fds"), tripNum: 1,)
+    return MaterialApp.router(
+      title: 'PowerTrip',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', '')],
+      theme: ThemeData(
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+      ),
+      themeMode: _themeMode,
+      routerConfig: _router,
+    );
+  }
+}
+
+class NavBarPage extends StatefulWidget {
+  const NavBarPage({super.key, this.initialPage, this.page});
+
+  final String? initialPage;
+  final Widget? page;
+
+  @override
+  _NavBarPageState createState() => _NavBarPageState();
+}
+
+/// This is the private State class that goes with NavBarPage.
+class _NavBarPageState extends State<NavBarPage> {
+  String _currentPageName = 'HomePage';
+  late Widget? _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPageName = widget.initialPage ?? _currentPageName;
+    _currentPage = widget.page;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tabs = {
+      'HomePage': const HomePageWidget(),
+      'Settings': const SettingsWidget(),
+      'Transactions': const TransactionsWidget(),
+    };
+    final currentIndex = tabs.keys.toList().indexOf(_currentPageName);
+
+    return Scaffold(
+      body: _currentPage ?? tabs[_currentPageName],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: (i) => safeSetState(() {
+          _currentPage = null;
+          _currentPageName = tabs.keys.toList()[i];
+        }),
+        backgroundColor: FlutterFlowTheme.of(context).primaryBackground,
+        selectedItemColor: FlutterFlowTheme.of(context).primary,
+        unselectedItemColor: FlutterFlowTheme.of(context).secondaryText,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.home_outlined,
+            ),
+            label: 'Home',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.settings_rounded,
+            ),
+            label: '',
+            tooltip: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.attach_money_rounded,
+            ),
+            label: 'Transactionsv2',
+            tooltip: '',
+          )
+        ],
+      ),
     );
   }
 }
