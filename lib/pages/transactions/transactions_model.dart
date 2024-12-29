@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 class TransactionsModel extends FlutterFlowModel<TransactionsWidget> {
   ///  State fields for stateful widgets in this page.
 
-  // Stores action output result for [Backend Call - API (SendData)] action in IconButton widget.
-  ApiCallResponse? apiResultdb4;
   // State field(s) for DropDown widget.
   String? dropDownValue;
   FormFieldController<String>? dropDownValueController;

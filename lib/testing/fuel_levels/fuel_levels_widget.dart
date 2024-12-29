@@ -44,6 +44,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
     _model = createModel(context, () => FuelLevelsModel());
 
     _model.switchValue = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -56,7 +57,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ApiCallResponse>(
-      future: GetTripCall.call(),
+      future: TankGroup.tankAllCall.call(),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -74,7 +75,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
             ),
           );
         }
-        final fuelLevelsGetTripResponse = snapshot.data!;
+        final fuelLevelsTankAllResponse = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -278,7 +279,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                         TextSpan(
                                                           text: formatNumber(
                                                             FuelStruct.maybeFromMap(
-                                                                    fuelLevelsGetTripResponse
+                                                                    fuelLevelsTankAllResponse
                                                                         .jsonBody)!
                                                                 .gas
                                                                 .amount,
@@ -331,7 +332,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                         TextSpan(
                                                           text: formatNumber(
                                                             FuelStruct.maybeFromMap(
-                                                                    fuelLevelsGetTripResponse
+                                                                    fuelLevelsTankAllResponse
                                                                         .jsonBody)!
                                                                 .gas
                                                                 .price,
@@ -411,7 +412,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                               width: double.infinity,
                                               height: double.infinity,
                                               subFuelList: TankStruct.maybeFromMap(
-                                                      fuelLevelsGetTripResponse
+                                                      fuelLevelsTankAllResponse
                                                           .jsonBody)!
                                                   .gas,
                                             ),
@@ -432,7 +433,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                               width: double.infinity,
                                               height: double.infinity,
                                               subFuelData: TankStruct.maybeFromMap(
-                                                      fuelLevelsGetTripResponse
+                                                      fuelLevelsTankAllResponse
                                                           .jsonBody)!
                                                   .gas,
                                             ),
@@ -628,7 +629,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                               width: double.infinity,
                                               height: double.infinity,
                                               subFuelList: TankStruct.maybeFromMap(
-                                                      fuelLevelsGetTripResponse
+                                                      fuelLevelsTankAllResponse
                                                           .jsonBody)!
                                                   .electric,
                                             ),
@@ -649,7 +650,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                               width: double.infinity,
                                               height: double.infinity,
                                               subFuelData: TankStruct.maybeFromMap(
-                                                      fuelLevelsGetTripResponse
+                                                      fuelLevelsTankAllResponse
                                                           .jsonBody)!
                                                   .electric,
                                             ),

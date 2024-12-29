@@ -31,6 +31,8 @@ class _PlaceDialogWidgetState extends State<PlaceDialogWidget> {
 
     _model.textController ??= TextEditingController();
     _model.textFieldFocusNode ??= FocusNode();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -154,7 +156,7 @@ class _PlaceDialogWidgetState extends State<PlaceDialogWidget> {
                     iOSGoogleMapsApiKey:
                         'AIzaSyDy063-2pYn4mkL4RLxl1lKfvcs9s12B80',
                     androidGoogleMapsApiKey:
-                        'AIzaSyDy063-2pYn4mkL4RLxl1lKfvcs9s12B80',
+                        'AIzaSyAO8dYDcL9zlBlE3Ndm9lC0h-5Oe0a0V1k',
                     webGoogleMapsApiKey:
                         'AIzaSyDy063-2pYn4mkL4RLxl1lKfvcs9s12B80',
                     onSelect: (place) async {

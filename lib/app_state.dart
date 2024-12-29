@@ -49,7 +49,7 @@ class FFAppState extends ChangeNotifier {
 
   late FlutterSecureStorage secureStorage;
 
-  String _ServerUrl = 'http://localhost:8000/logs';
+  String _ServerUrl = 'http://127.0.0.1:5000';
   String get ServerUrl => _ServerUrl;
   set ServerUrl(String value) {
     _ServerUrl = value;

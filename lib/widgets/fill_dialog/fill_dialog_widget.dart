@@ -12,17 +12,7 @@ import 'fill_dialog_model.dart';
 export 'fill_dialog_model.dart';
 
 class FillDialogWidget extends StatefulWidget {
-  const FillDialogWidget({
-    super.key,
-    String? confirmButton,
-    String? cancelButton,
-    this.confirmCallback,
-  })  : confirmButton = confirmButton ?? 'Confirm',
-        cancelButton = cancelButton ?? 'Cancel';
-
-  final String confirmButton;
-  final String cancelButton;
-  final Future Function()? confirmCallback;
+  const FillDialogWidget({super.key});
 
   @override
   State<FillDialogWidget> createState() => _FillDialogWidgetState();
@@ -50,6 +40,8 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
 
     _model.textController3 ??= TextEditingController();
     _model.textFieldFocusNode3 ??= FocusNode();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -111,59 +103,55 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
                         ),
                         onPressed: () async {
                           _model.gasData = await actions.imgToData();
-                          safeSetState(() {
-                            _model.textController1?.clear();
-                            _model.textController2?.clear();
-                            _model.textController3?.clear();
-                          });
-                          await showDialog(
-                            context: context,
-                            builder: (alertDialogContext) {
-                              return AlertDialog(
-                                title: const Text('Data'),
-                                content: Text('${formatNumber(
-                                  _model.gasData?.amount,
-                                  formatType: FormatType.custom,
-                                  format: '.## gal',
-                                  locale: '',
-                                )}${formatNumber(
-                                  _model.gasData?.price,
-                                  formatType: FormatType.decimal,
-                                  decimalType: DecimalType.automatic,
-                                  currency: '',
-                                )}'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(alertDialogContext),
-                                    child: const Text('Ok'),
-                                  ),
-                                ],
+                          if (_model.gasData == null) {
+                            var confirmDialogResponse = await showDialog<bool>(
+                                  context: context,
+                                  builder: (alertDialogContext) {
+                                    return AlertDialog(
+                                      title: const Text('ERROR'),
+                                      content: const Text('No data found in image'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(
+                                              alertDialogContext, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(
+                                              alertDialogContext, true),
+                                          child: const Text('Confirm'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ) ??
+                                false;
+                          } else {
+                            safeSetState(() {
+                              _model.textController3?.text = formatNumber(
+                                _model.gasData!.price,
+                                formatType: FormatType.decimal,
+                                decimalType: DecimalType.automatic,
+                                currency: '',
                               );
-                            },
-                          );
-                          await Future.wait([
-                            Future(() async {
-                              safeSetState(() {
-                                _model.textController1?.text = formatNumber(
-                                  _model.gasData!.amount,
-                                  formatType: FormatType.custom,
-                                  format: '.## gal',
-                                  locale: '',
-                                );
-                              });
-                            }),
-                            Future(() async {
-                              safeSetState(() {
-                                _model.textController3?.text = formatNumber(
-                                  _model.gasData!.price,
-                                  formatType: FormatType.decimal,
-                                  decimalType: DecimalType.automatic,
-                                  currency: '',
-                                );
-                              });
-                            }),
-                          ]);
+                            });
+                            safeSetState(() {
+                              _model.textController1?.text = formatNumber(
+                                _model.gasData!.amount,
+                                formatType: FormatType.custom,
+                                format: '.## gal',
+                                locale: '',
+                              );
+                            });
+                            safeSetState(() {
+                              _model.textController2?.text = formatNumber(
+                                _model.gasData!.price / _model.gasData!.amount,
+                                formatType: FormatType.decimal,
+                                decimalType: DecimalType.automatic,
+                                currency: '',
+                              );
+                            });
+                          }
 
                           safeSetState(() {});
                         },
@@ -175,33 +163,48 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
                     child: TextFormField(
                       controller: _model.textController1,
                       focusNode: _model.textFieldFocusNode1,
-                      onFieldSubmitted: (_) async {
-                        if ((_model.textController2.text != '') &&
-                            (_model.textController1.text != '')) {
-                          safeSetState(() {
-                            _model.textController3?.text = formatNumber(
-                              double.parse(_model.textController1.text) *
-                                  double.parse(_model.textController2.text),
-                              formatType: FormatType.decimal,
-                              decimalType: DecimalType.automatic,
-                            );
-                          });
-                          return;
-                        } else if ((_model.textController1.text != '') &&
-                            (_model.textController3.text != '')) {
-                          safeSetState(() {
-                            _model.textController2?.text = formatNumber(
-                              double.parse(_model.textController3.text) /
-                                  double.parse(_model.textController1.text),
-                              formatType: FormatType.decimal,
-                              decimalType: DecimalType.automatic,
-                            );
-                          });
-                          return;
-                        } else {
-                          return;
-                        }
-                      },
+                      onChanged: (_) => EasyDebounce.debounce(
+                        '_model.textController1',
+                        const Duration(milliseconds: 0),
+                        () async {
+                          if (_model.textController1.text == '') {
+                            _model.just = _model.second;
+                            _model.second = null;
+                            safeSetState(() {});
+                            return;
+                          } else {
+                            if (_model.just != 1) {
+                              _model.second = _model.just;
+                              _model.just = 1;
+                              safeSetState(() {});
+                            }
+                            if ((_model.just != null) &&
+                                (_model.second != null)) {
+                              if (_model.second == 2) {
+                                safeSetState(() {
+                                  _model.textController3?.text = (double.parse(
+                                              _model.textController1.text) *
+                                          double.parse(
+                                              _model.textController2.text))
+                                      .toString();
+                                });
+                              } else if (_model.second == 3) {
+                                safeSetState(() {
+                                  _model.textController2?.text = (double.parse(
+                                              _model.textController3.text) /
+                                          double.parse(
+                                              _model.textController1.text))
+                                      .toString();
+                                });
+                              }
+
+                              return;
+                            } else {
+                              return;
+                            }
+                          }
+                        },
+                      ),
                       autofocus: false,
                       textInputAction: TextInputAction.next,
                       obscureText: false,
@@ -283,33 +286,48 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
                     child: TextFormField(
                       controller: _model.textController2,
                       focusNode: _model.textFieldFocusNode2,
-                      onFieldSubmitted: (_) async {
-                        if ((_model.textController1.text != '') &&
-                            (_model.textController2.text != '')) {
-                          safeSetState(() {
-                            _model.textController3?.text = formatNumber(
-                              double.parse(_model.textController1.text) *
-                                  double.parse(_model.textController2.text),
-                              formatType: FormatType.decimal,
-                              decimalType: DecimalType.automatic,
-                            );
-                          });
-                          return;
-                        } else if ((_model.textController2.text != '') &&
-                            (_model.textController3.text != '')) {
-                          safeSetState(() {
-                            _model.textController1?.text = formatNumber(
-                              double.parse(_model.textController3.text) /
-                                  double.parse(_model.textController2.text),
-                              formatType: FormatType.decimal,
-                              decimalType: DecimalType.automatic,
-                            );
-                          });
-                          return;
-                        } else {
-                          return;
-                        }
-                      },
+                      onChanged: (_) => EasyDebounce.debounce(
+                        '_model.textController2',
+                        const Duration(milliseconds: 0),
+                        () async {
+                          if (_model.textController2.text == '') {
+                            _model.just = _model.second;
+                            _model.second = null;
+                            safeSetState(() {});
+                            return;
+                          } else {
+                            if (_model.just != 2) {
+                              _model.second = _model.just;
+                              _model.just = 2;
+                              safeSetState(() {});
+                            }
+                            if ((_model.just != null) &&
+                                (_model.second != null)) {
+                              if (_model.second == 1) {
+                                safeSetState(() {
+                                  _model.textController3?.text = (double.parse(
+                                              _model.textController2.text) *
+                                          double.parse(
+                                              _model.textController1.text))
+                                      .toString();
+                                });
+                              } else if (_model.second == 3) {
+                                safeSetState(() {
+                                  _model.textController1?.text = (double.parse(
+                                              _model.textController3.text) /
+                                          double.parse(
+                                              _model.textController2.text))
+                                      .toString();
+                                });
+                              }
+
+                              return;
+                            } else {
+                              return;
+                            }
+                          }
+                        },
+                      ),
                       autofocus: false,
                       textInputAction: TextInputAction.next,
                       obscureText: false,
@@ -392,32 +410,43 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
                       focusNode: _model.textFieldFocusNode3,
                       onChanged: (_) => EasyDebounce.debounce(
                         '_model.textController3',
-                        const Duration(milliseconds: 2000),
+                        const Duration(milliseconds: 0),
                         () async {
-                          if ((_model.textController3.text != '') &&
-                              (_model.textController1.text != '')) {
-                            safeSetState(() {
-                              _model.textController2?.text = formatNumber(
-                                double.parse(_model.textController3.text) /
-                                    double.parse(_model.textController1.text),
-                                formatType: FormatType.decimal,
-                                decimalType: DecimalType.automatic,
-                              );
-                            });
-                            return;
-                          } else if ((_model.textController3.text != '') &&
-                              (_model.textController2.text != '')) {
-                            safeSetState(() {
-                              _model.textController1?.text = formatNumber(
-                                double.parse(_model.textController3.text) /
-                                    double.parse(_model.textController2.text),
-                                formatType: FormatType.decimal,
-                                decimalType: DecimalType.automatic,
-                              );
-                            });
+                          if (_model.textController3.text == '') {
+                            _model.just = _model.second;
+                            _model.second = null;
+                            safeSetState(() {});
                             return;
                           } else {
-                            return;
+                            if (_model.just != 3) {
+                              _model.second = _model.just;
+                              _model.just = 3;
+                              safeSetState(() {});
+                            }
+                            if ((_model.just != null) &&
+                                (_model.second != null)) {
+                              if (_model.second == 1) {
+                                safeSetState(() {
+                                  _model.textController2?.text = (double.parse(
+                                              _model.textController3.text) /
+                                          double.parse(
+                                              _model.textController1.text))
+                                      .toString();
+                                });
+                              } else if (_model.second == 2) {
+                                safeSetState(() {
+                                  _model.textController1?.text = (double.parse(
+                                              _model.textController3.text) /
+                                          double.parse(
+                                              _model.textController2.text))
+                                      .toString();
+                                });
+                              }
+
+                              return;
+                            } else {
+                              return;
+                            }
                           }
                         },
                       ),
@@ -537,7 +566,12 @@ class _FillDialogWidgetState extends State<FillDialogWidget> {
                         onPressed: () async {
                           var shouldSetState = false;
                           Navigator.pop(context, true);
-                          _model.apiResultdb4 = await SendDataCall.call();
+                          _model.apiResultdb4 =
+                              await TankGroup.addSubFuelCall.call(
+                            amount:
+                                double.tryParse(_model.textController1.text),
+                            price: double.tryParse(_model.textController2.text),
+                          );
 
                           shouldSetState = true;
                           if ((_model.apiResultdb4?.succeeded ?? true)) {

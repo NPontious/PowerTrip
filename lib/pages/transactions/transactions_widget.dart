@@ -40,6 +40,8 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TransactionsModel());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -53,7 +55,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder<ApiCallResponse>(
       future: _model.fuelLevel(
-        requestFn: () => GetTripCall.call(),
+        requestFn: () => TankGroup.tankAllCall.call(),
       ),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
@@ -72,7 +74,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
             ),
           );
         }
-        final transactionsGetTripResponse = snapshot.data!;
+        final transactionsTankAllResponse = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -120,43 +122,11 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                                 FocusScope.of(dialogContext).unfocus();
                                 FocusManager.instance.primaryFocus?.unfocus();
                               },
-                              child: FillDialogWidget(
-                                confirmCallback: () async {
-                                  var shouldSetState = false;
-                                  _model.apiResultdb4 =
-                                      await SendDataCall.call();
-
-                                  shouldSetState = true;
-                                  if ((_model.apiResultdb4?.succeeded ??
-                                      true)) {
-                                    return;
-                                  }
-
-                                  await showDialog(
-                                    context: context,
-                                    builder: (alertDialogContext) {
-                                      return AlertDialog(
-                                        title: const Text('ERROR'),
-                                        content: const Text('Data not sent'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.pop(
-                                                alertDialogContext),
-                                            child: const Text('Ok'),
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                  return;
-                                },
-                              ),
+                              child: const FillDialogWidget(),
                             ),
                           );
                         },
                       );
-
-                      safeSetState(() {});
                     },
                   ),
                 ),
@@ -235,7 +205,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                                             ),
                                             Padding(
                                               padding: const EdgeInsetsDirectional
-                                                  .fromSTEB(0.0, 0.0, 0.0, 1.0),
+                                                  .fromSTEB(0.0, 0.0, 0.0, 2.0),
                                               child:
                                                   FlutterFlowDropDown<String>(
                                                 controller: _model
@@ -946,7 +916,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                                 if (_model.choiceChipsValue != 'Filled')
                                   Builder(
                                     builder: (context) {
-                                      final expences = ((transactionsGetTripResponse
+                                      final expences = ((transactionsTankAllResponse
                                                           .jsonBody
                                                           .toList()
                                                           .map<FuelStruct?>(
@@ -1329,7 +1299,7 @@ class _TransactionsWidgetState extends State<TransactionsWidget> {
                                 if (_model.choiceChipsValue != 'Used')
                                   Builder(
                                     builder: (context) {
-                                      final expences = ((transactionsGetTripResponse
+                                      final expences = ((transactionsTankAllResponse
                                                           .jsonBody
                                                           .toList()
                                                           .map<FuelStruct?>(

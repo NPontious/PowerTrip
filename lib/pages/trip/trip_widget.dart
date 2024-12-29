@@ -41,6 +41,8 @@ class _TripWidgetState extends State<TripWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TripModel());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
 
   @override
@@ -55,8 +57,10 @@ class _TripWidgetState extends State<TripWidget> {
     context.watch<FFAppState>();
 
     return FutureBuilder<ApiCallResponse>(
-      future: GetTripCall.call(
-        tripNum: widget.tripNum,
+      future: _model.tripDetails(
+        requestFn: () => TripGroup.tripNumCall.call(
+          tripId: widget.tripNum,
+        ),
       ),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
@@ -75,7 +79,7 @@ class _TripWidgetState extends State<TripWidget> {
             ),
           );
         }
-        final tripGetTripResponse = snapshot.data!;
+        final tripTripNumResponse = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -183,7 +187,7 @@ class _TripWidgetState extends State<TripWidget> {
                                         child: Text(
                                           formatNumber(
                                             TripStruct.maybeFromMap(
-                                                    tripGetTripResponse
+                                                    tripTripNumResponse
                                                         .jsonBody)!
                                                 .distance,
                                             formatType: FormatType.custom,
@@ -564,7 +568,7 @@ class _TripWidgetState extends State<TripWidget> {
                                             Text(
                                               formatNumber(
                                                 TripStruct.maybeFromMap(
-                                                        tripGetTripResponse
+                                                        tripTripNumResponse
                                                             .jsonBody)!
                                                     .fuelUsed
                                                     .gas
@@ -597,7 +601,7 @@ class _TripWidgetState extends State<TripWidget> {
                                               child: Text(
                                                 formatNumber(
                                                   TripStruct.maybeFromMap(
-                                                          tripGetTripResponse
+                                                          tripTripNumResponse
                                                               .jsonBody)!
                                                       .fuelUsed
                                                       .electric
@@ -956,7 +960,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                           .Places
                                                           .toList(),
                                                       TripStruct.maybeFromMap(
-                                                              tripGetTripResponse
+                                                              tripTripNumResponse
                                                                   .jsonBody)!
                                                           .departureLoc!)
                                                   ?.name,
@@ -990,7 +994,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                             .Places
                                                             .toList(),
                                                         TripStruct.maybeFromMap(
-                                                                tripGetTripResponse
+                                                                tripTripNumResponse
                                                                     .jsonBody)!
                                                             .departureLoc!)
                                                     ?.city,
@@ -1065,7 +1069,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                           .Places
                                                           .toList(),
                                                       TripStruct.maybeFromMap(
-                                                              tripGetTripResponse
+                                                              tripTripNumResponse
                                                                   .jsonBody)!
                                                           .arrivalLoc!)
                                                   ?.name,
@@ -1099,7 +1103,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                             .Places
                                                             .toList(),
                                                         TripStruct.maybeFromMap(
-                                                                tripGetTripResponse
+                                                                tripTripNumResponse
                                                                     .jsonBody)!
                                                             .arrivalLoc!)
                                                     ?.city,
@@ -1137,10 +1141,10 @@ class _TripWidgetState extends State<TripWidget> {
                                   child: FlutterFlowStaticMap(
                                     location: functions.midpoint(
                                         TripStruct.maybeFromMap(
-                                                tripGetTripResponse.jsonBody)!
+                                                tripTripNumResponse.jsonBody)!
                                             .departureLoc!,
                                         TripStruct.maybeFromMap(
-                                                tripGetTripResponse.jsonBody)!
+                                                tripTripNumResponse.jsonBody)!
                                             .arrivalLoc!),
                                     apiKey:
                                         'pk.eyJ1Ijoibmlja3luaWNreSIsImEiOiJjbTN0MWtncXcwM3c1MndwdzlsY3JmejFxIn0.4malTonWIjT_jvinZtVbOQ',
@@ -1189,7 +1193,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                 dateTimeFormat(
                                                     "MMMEd",
                                                     TripStruct.maybeFromMap(
-                                                            tripGetTripResponse
+                                                            tripTripNumResponse
                                                                 .jsonBody)!
                                                         .departureTime!),
                                                 style:
@@ -1217,7 +1221,7 @@ class _TripWidgetState extends State<TripWidget> {
                                               dateTimeFormat(
                                                   "jm",
                                                   TripStruct.maybeFromMap(
-                                                          tripGetTripResponse
+                                                          tripTripNumResponse
                                                               .jsonBody)!
                                                       .departureTime!),
                                               style: FlutterFlowTheme.of(
@@ -1254,7 +1258,7 @@ class _TripWidgetState extends State<TripWidget> {
                                                 dateTimeFormat(
                                                     "MMMEd",
                                                     TripStruct.maybeFromMap(
-                                                            tripGetTripResponse
+                                                            tripTripNumResponse
                                                                 .jsonBody)!
                                                         .arrivalTime!),
                                                 style:
@@ -1282,7 +1286,7 @@ class _TripWidgetState extends State<TripWidget> {
                                               dateTimeFormat(
                                                   "jm",
                                                   TripStruct.maybeFromMap(
-                                                          tripGetTripResponse
+                                                          tripTripNumResponse
                                                               .jsonBody)!
                                                       .arrivalTime!),
                                               style: FlutterFlowTheme.of(

@@ -5,6 +5,12 @@ import 'fill_dialog_widget.dart' show FillDialogWidget;
 import 'package:flutter/material.dart';
 
 class FillDialogModel extends FlutterFlowModel<FillDialogWidget> {
+  ///  Local state fields for this component.
+
+  int? just;
+
+  int? second;
+
   ///  State fields for stateful widgets in this component.
 
   // Stores action output result for [Custom Action - imgToData] action in IconButton widget.
@@ -21,7 +27,7 @@ class FillDialogModel extends FlutterFlowModel<FillDialogWidget> {
   FocusNode? textFieldFocusNode3;
   TextEditingController? textController3;
   String? Function(BuildContext, String?)? textController3Validator;
-  // Stores action output result for [Backend Call - API (SendData)] action in confirmButton widget.
+  // Stores action output result for [Backend Call - API (AddSubFuel)] action in confirmButton widget.
   ApiCallResponse? apiResultdb4;
 
   @override

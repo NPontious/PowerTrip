@@ -38,6 +38,12 @@ Future<SubFuelStruct?> imgToData() async {
     double totalCost = double.parse(matches[0].group(0)!);
     double gallons = double.parse(matches[1].group(0)!);
 
+    if (gallons > totalCost) {
+      double temp = totalCost;
+      totalCost = gallons;
+      gallons = temp;
+    }
+
     // Step 4: Return the result as a SubFuelStruct
     return SubFuelStruct(amount: gallons, price: totalCost);
   }
