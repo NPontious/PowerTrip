@@ -1,11 +1,12 @@
 import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/flutter_flow/random_data_util.dart' as random_data;
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'home_page_model.dart';
 export 'home_page_model.dart';
 
@@ -38,6 +39,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return FutureBuilder<ApiCallResponse>(
       future: TripGroup.tripRangeCall.call(),
       builder: (context, snapshot) {
@@ -106,145 +109,184 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     Padding(
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        focusColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        onTap: () async {
-                          context.pushNamed(
-                            'FuelLevels',
-                            extra: <String, dynamic>{
-                              kTransitionInfoKey: const TransitionInfo(
-                                hasTransition: true,
-                                transitionType: PageTransitionType.scale,
-                                alignment: Alignment.bottomCenter,
+                      child: FutureBuilder<ApiCallResponse>(
+                        future: TankGroup.tankNumCall.call(
+                          tankId: 1,
+                        ),
+                        builder: (context, snapshot) {
+                          // Customize what your widget looks like when it's loading.
+                          if (!snapshot.hasData) {
+                            return Center(
+                              child: SizedBox(
+                                width: 50.0,
+                                height: 50.0,
+                                child: SpinKitRing(
+                                  color: FlutterFlowTheme.of(context).primary,
+                                  size: 50.0,
+                                ),
                               ),
+                            );
+                          }
+                          final cardTankNumResponse = snapshot.data!;
+
+                          return InkWell(
+                            splashColor: Colors.transparent,
+                            focusColor: Colors.transparent,
+                            hoverColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                            onTap: () async {
+                              context.pushNamed(
+                                'FuelLevels',
+                                extra: <String, dynamic>{
+                                  kTransitionInfoKey: const TransitionInfo(
+                                    hasTransition: true,
+                                    transitionType: PageTransitionType.scale,
+                                    alignment: Alignment.bottomCenter,
+                                  ),
+                                },
+                              );
                             },
+                            child: Card(
+                              key: const ValueKey('Card_mo8w'),
+                              clipBehavior: Clip.antiAliasWithSaveLayer,
+                              color: FlutterFlowTheme.of(context)
+                                  .primaryBackground,
+                              elevation: 0.0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 10.0, 0.0),
+                                          child: Icon(
+                                            Icons.electric_bolt,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            size: 30.0,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: CircularPercentIndicator(
+                                            percent: getJsonField(
+                                                  cardTankNumResponse.jsonBody,
+                                                  r'''$['Electric Fuels'][0]['Amount']''',
+                                                ) /
+                                                100,
+                                            radius: 50.0,
+                                            lineWidth: 15.0,
+                                            animation: true,
+                                            animateFromLastPercent: true,
+                                            progressColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .primary,
+                                            center: Text(
+                                              getJsonField(
+                                                cardTankNumResponse.jsonBody,
+                                                r'''$['Electric Fuels'][0]['Amount']''',
+                                              ).toString(),
+                                              textAlign: TextAlign.center,
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .headlineSmallFamily,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts: GoogleFonts
+                                                                .asMap()
+                                                            .containsKey(
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .headlineSmallFamily),
+                                                      ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 100.0,
+                                      child: VerticalDivider(
+                                        thickness: 2.0,
+                                        color: FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.fromSTEB(
+                                                  0.0, 0.0, 10.0, 0.0),
+                                          child: Icon(
+                                            Icons.local_gas_station,
+                                            color: FlutterFlowTheme.of(context)
+                                                .primaryText,
+                                            size: 30.0,
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: CircularPercentIndicator(
+                                            percent: getJsonField(
+                                                  cardTankNumResponse.jsonBody,
+                                                  r'''$['Gas Fuels'][0]['Amount']''',
+                                                ) /
+                                                100,
+                                            radius: 50.0,
+                                            lineWidth: 15.0,
+                                            animation: true,
+                                            animateFromLastPercent: true,
+                                            progressColor:
+                                                FlutterFlowTheme.of(context)
+                                                    .primaryText,
+                                            center: Text(
+                                              getJsonField(
+                                                cardTankNumResponse.jsonBody,
+                                                r'''$['Gas Fuels'][0]['Amount']''',
+                                              ).toString(),
+                                              textAlign: TextAlign.center,
+                                              style:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .override(
+                                                        fontFamily:
+                                                            FlutterFlowTheme.of(
+                                                                    context)
+                                                                .headlineSmallFamily,
+                                                        letterSpacing: 0.0,
+                                                        useGoogleFonts: GoogleFonts
+                                                                .asMap()
+                                                            .containsKey(
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .headlineSmallFamily),
+                                                      ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
                           );
                         },
-                        child: Card(
-                          clipBehavior: Clip.antiAliasWithSaveLayer,
-                          color: FlutterFlowTheme.of(context).primaryBackground,
-                          elevation: 0.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 10.0, 0.0),
-                                      child: Icon(
-                                        Icons.electric_bolt,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 30.0,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: CircularPercentIndicator(
-                                        percent:
-                                            random_data.randomDouble(0.0, 1.0),
-                                        radius: 50.0,
-                                        lineWidth: 15.0,
-                                        animation: true,
-                                        animateFromLastPercent: true,
-                                        progressColor:
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                        center: Text(
-                                          formatNumber(
-                                            random_data.randomDouble(0.0, 1.0),
-                                            formatType: FormatType.percent,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .headlineSmall
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineSmallFamily,
-                                                letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(FlutterFlowTheme
-                                                            .of(context)
-                                                        .headlineSmallFamily),
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 100.0,
-                                  child: VerticalDivider(
-                                    thickness: 2.0,
-                                    color: FlutterFlowTheme.of(context)
-                                        .secondaryText,
-                                  ),
-                                ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsetsDirectional.fromSTEB(
-                                          0.0, 0.0, 10.0, 0.0),
-                                      child: Icon(
-                                        Icons.local_gas_station,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 30.0,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: CircularPercentIndicator(
-                                        percent:
-                                            random_data.randomDouble(0.0, 1.0),
-                                        radius: 50.0,
-                                        lineWidth: 15.0,
-                                        animation: true,
-                                        animateFromLastPercent: true,
-                                        progressColor:
-                                            FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                        center: Text(
-                                          formatNumber(
-                                            random_data.randomDouble(0.0, 1.0),
-                                            formatType: FormatType.percent,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          style: FlutterFlowTheme.of(context)
-                                              .headlineSmall
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineSmallFamily,
-                                                letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(FlutterFlowTheme
-                                                            .of(context)
-                                                        .headlineSmallFamily),
-                                              ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       ),
                     ),
                     Padding(
@@ -310,6 +352,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   }
 
                                   return ListView.separated(
+                                    key: const ValueKey('ListView_ckxl'),
                                     padding: const EdgeInsets.fromLTRB(
                                       0,
                                       16.0,
@@ -405,7 +448,13 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                       12.0,
                                                                       0.0),
                                                           child: Text(
-                                                            '3:21pm-4pm',
+                                                            '${getJsonField(
+                                                              tripItem,
+                                                              r'''$['Trip']['DepartureTime']''',
+                                                            ).toString()}-${getJsonField(
+                                                              tripItem,
+                                                              r'''$['Trip']['ArrivalTime']''',
+                                                            ).toString()}',
                                                             style: FlutterFlowTheme
                                                                     .of(context)
                                                                 .labelSmall
@@ -448,7 +497,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                               children: [
                                                                 TextSpan(
                                                                   text:
-                                                                      'Arrived at',
+                                                                      'Arrived at ',
                                                                   style:
                                                                       TextStyle(
                                                                     color: FlutterFlowTheme.of(
@@ -459,8 +508,23 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                   ),
                                                                 ),
                                                                 TextSpan(
-                                                                  text:
-                                                                      ' Isa\'s Home',
+                                                                  text: valueOrDefault<
+                                                                      String>(
+                                                                    functions
+                                                                        .knownPlace(
+                                                                            FFAppState().Places.toList(),
+                                                                            functions.parseAsLoc(
+                                                                                getJsonField(
+                                                                                  tripItem,
+                                                                                  r'''$['Trip']['DepartureLoc']['lat']''',
+                                                                                ),
+                                                                                getJsonField(
+                                                                                  tripItem,
+                                                                                  r'''$['Trip']['DepartureLoc']['lng']''',
+                                                                                )))
+                                                                        ?.name,
+                                                                    'Isa\'s Home',
+                                                                  ),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .labelMedium
@@ -525,7 +589,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                   ),
                                                                 ),
                                                                 TextSpan(
-                                                                  text: '10 mi',
+                                                                  text:
+                                                                      getJsonField(
+                                                                    tripItem,
+                                                                    r'''$['Trip']['Distance']''',
+                                                                  ).toString(),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .labelMedium
@@ -540,6 +608,22 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                             0.0,
                                                                         fontWeight:
                                                                             FontWeight.bold,
+                                                                        useGoogleFonts:
+                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                      ),
+                                                                ),
+                                                                TextSpan(
+                                                                  text: ' mi',
+                                                                  style: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .labelMedium
+                                                                      .override(
+                                                                        fontFamily:
+                                                                            FlutterFlowTheme.of(context).labelMediumFamily,
+                                                                        color: FlutterFlowTheme.of(context)
+                                                                            .primaryText,
+                                                                        letterSpacing:
+                                                                            0.0,
                                                                         useGoogleFonts:
                                                                             GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).labelMediumFamily),
                                                                       ),

@@ -1,9 +1,8 @@
 import '/backend/api_requests/api_calls.dart';
+import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
-import '/backend/schema/structs/index.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
-import '/flutter_flow/random_data_util.dart' as random_data;
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,7 +56,9 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ApiCallResponse>(
-      future: TankGroup.tankAllCall.call(),
+      future: _model.fuelLevel(
+        requestFn: () => TankGroup.tankAllCall.call(),
+      ),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -164,79 +165,98 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                         .headlineSmallFamily),
                                           ),
                                     ),
-                                    Container(
+                                    SizedBox(
                                       width: 200.0,
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        GradientText(
-                                          '64%',
-                                          style: FlutterFlowTheme.of(context)
-                                              .displaySmall
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .displaySmallFamily,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .primary,
-                                                letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .displaySmallFamily),
-                                              ),
-                                          colors: [
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                            FlutterFlowTheme.of(context)
-                                                .secondary,
-                                            FlutterFlowTheme.of(context)
-                                                .tertiary
-                                          ],
-                                          gradientDirection:
-                                              GradientDirection.ttb,
-                                          gradientType: GradientType.linear,
-                                        ),
-                                        Text(
-                                          '6.1 Gal',
-                                          style: FlutterFlowTheme.of(context)
-                                              .titleLarge
-                                              .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLargeFamily,
-                                                color:
-                                                    FlutterFlowTheme.of(context)
-                                                        .secondaryText,
-                                                letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleLargeFamily),
-                                              ),
-                                        ),
-                                      ].divide(const SizedBox(width: 8.0)),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          GradientText(
+                                            formatNumber(
+                                              TankStruct.maybeFromMap(
+                                                          fuelLevelsTankAllResponse
+                                                              .jsonBody)!
+                                                      .gas
+                                                      .firstOrNull!
+                                                      .amount /
+                                                  12,
+                                              formatType: FormatType.percent,
+                                            ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .displaySmall
+                                                .override(
+                                                  fontFamily:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .displaySmallFamily,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primary,
+                                                  letterSpacing: 0.0,
+                                                  useGoogleFonts: GoogleFonts
+                                                          .asMap()
+                                                      .containsKey(
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .displaySmallFamily),
+                                                ),
+                                            colors: [
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                              FlutterFlowTheme.of(context)
+                                                  .secondary,
+                                              FlutterFlowTheme.of(context)
+                                                  .tertiary
+                                            ],
+                                            gradientDirection:
+                                                GradientDirection.ttb,
+                                            gradientType: GradientType.linear,
+                                          ),
+                                          Text(
+                                            formatNumber(
+                                              TankStruct.maybeFromMap(
+                                                      fuelLevelsTankAllResponse
+                                                          .jsonBody)!
+                                                  .gas
+                                                  .firstOrNull!
+                                                  .amount,
+                                              formatType: FormatType.custom,
+                                              format: '.## gal',
+                                              locale: '',
+                                            ),
+                                            style: FlutterFlowTheme.of(context)
+                                                .titleLarge
+                                                .override(
+                                                  fontFamily:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLargeFamily,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .secondaryText,
+                                                  letterSpacing: 0.0,
+                                                  useGoogleFonts: GoogleFonts
+                                                          .asMap()
+                                                      .containsKey(
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .titleLargeFamily),
+                                                ),
+                                          ),
+                                        ].divide(const SizedBox(width: 8.0)),
+                                      ),
                                     ),
                                     SizedBox(
                                       width: 200.0,
                                       child: Builder(
                                         builder: (context) {
-                                          final levels =
-                                              List.generate(
-                                                      random_data.randomInteger(
-                                                          5, 5),
-                                                      (index) => random_data
-                                                          .randomDouble(
-                                                              0.0, 1.0))
-                                                  .toList()
-                                                  .take(3)
-                                                  .toList();
+                                          final levels = (TankStruct.maybeFromMap(
+                                                          fuelLevelsTankAllResponse
+                                                              .jsonBody)
+                                                      ?.gas
+                                                      .toList() ??
+                                                  [])
+                                              .take(3)
+                                              .toList();
 
                                           return ListView.separated(
                                             padding: EdgeInsets.zero,
@@ -541,16 +561,14 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       width: 200.0,
                                       child: Builder(
                                         builder: (context) {
-                                          final levels =
-                                              List.generate(
-                                                      random_data.randomInteger(
-                                                          5, 5),
-                                                      (index) => random_data
-                                                          .randomDouble(
-                                                              0.0, 1.0))
-                                                  .toList()
-                                                  .take(3)
-                                                  .toList();
+                                          final levels = (TankStruct.maybeFromMap(
+                                                          fuelLevelsTankAllResponse
+                                                              .jsonBody)
+                                                      ?.electric
+                                                      .toList() ??
+                                                  [])
+                                              .take(3)
+                                              .toList();
 
                                           return ListView.builder(
                                             padding: EdgeInsets.zero,

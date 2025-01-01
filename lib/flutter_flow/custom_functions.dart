@@ -53,3 +53,10 @@ LatLng midpoint(
   double avgLng = (loc1.longitude + loc2.longitude) / 2;
   return LatLng(avgLat, avgLng);
 }
+
+LatLng parseAsLoc(
+  double lat,
+  double lng,
+) {
+  return LatLng(lat, lng);
+}
