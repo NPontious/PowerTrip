@@ -21,15 +21,29 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        .feature-card img {
-            max-height: 600px; /* Constrain image height */
-            object-position: top; /* Show the top of the image */
+        .phone-mockup {
+            position: relative;
+            max-width: 300px; /* Controls the size of the phone */
+            margin: auto;
+            background: #1f2937; /* gray-800 */
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+        }
+        .dark .phone-mockup {
+            background: #030712; /* dark:gray-950 */
+        }
+        .phone-mockup img {
+            border-radius: 28px;
+            width: 100%;
+            height: auto;
+            display: block;
         }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 dark:bg-gray-900 dark:text-slate-300">
+<body class="bg-slate-50 text-slate-700 dark:bg-slate-950 dark:text-slate-300">
 
-    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm dark:bg-gray-900/80 dark:border-b dark:border-slate-800">
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm dark:bg-slate-950/80 dark:border-b dark:border-slate-800">
         <div class="container mx-auto max-w-6xl px-4">
             <div class="flex justify-between items-center py-4">
                 <a href="#" class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -50,89 +64,125 @@
 
     <div class="container mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
 
+        <!-- Hero Section -->
         <header id="about" class="py-16 md:py-24">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="text-center md:text-left">
                     <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
-                        PowerTrip: Fuel & Energy Tracker
+                        PowerTrip: Smart Fuel & Energy Tracking
                     </h1>
                     <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto md:mx-0">
-                        A cross-platform mobile application built with Flutter to track vehicle fuel, energy usage, and associated costs.
+                        A cross-platform mobile app to track vehicle fuel, energy usage, and associated costs, giving you a clear picture of your spending.
                     </p>
                     <div class="mt-8 flex justify-center md:justify-start space-x-4">
-                        <a href="#features" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-lg">View Features</a>
+                        <a href="#features" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-lg">See Features</a>
                     </div>
                 </div>
-                <div class="hidden md:block">
-                     <div class="bg-gradient-to-br from-blue-500 to-indigo-700 rounded-2xl w-full h-auto p-4 shadow-2xl">
-                        <img src="assets/images/car.png" alt="Car" class="w-full h-auto">
-                    </div>
+                <div class="phone-mockup">
+                    <img src="home_page.png" alt="Home Page Screenshot">
                 </div>
             </div>
         </header>
 
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="py-16">
+            <div class="max-w-4xl mx-auto text-center">
+                 <h2 class="text-3xl font-bold mb-12 text-slate-900 dark:text-slate-100">How It Works</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                     <div class="flex flex-col items-center">
+                         <div class="bg-blue-100 text-blue-500 rounded-full w-20 h-20 flex items-center justify-center mb-4 dark:bg-blue-900/50 dark:text-blue-400">
+                            <i class="fas fa-route fa-2x"></i>
+                         </div>
+                         <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">1. Track Your Trips</h3>
+                         <p class="mt-2 text-slate-600 dark:text-slate-400">Automatically log distance, cost, and fuel consumption for every journey.</p>
+                     </div>
+                     <div class="flex flex-col items-center">
+                         <div class="bg-green-100 text-green-500 rounded-full w-20 h-20 flex items-center justify-center mb-4 dark:bg-green-900/50 dark:text-green-400">
+                            <i class="fas fa-chart-line fa-2x"></i>
+                         </div>
+                         <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">2. Analyze Your Data</h3>
+                         <p class="mt-2 text-slate-600 dark:text-slate-400">View detailed breakdowns and charts to understand your spending patterns.</p>
+                     </div>
+                     <div class="flex flex-col items-center">
+                         <div class="bg-purple-100 text-purple-500 rounded-full w-20 h-20 flex items-center justify-center mb-4 dark:bg-purple-900/50 dark:text-purple-400">
+                            <i class="fas fa-piggy-bank fa-2x"></i>
+                         </div>
+                         <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">3. Save Money</h3>
+                         <p class="mt-2 text-slate-600 dark:text-slate-400">Optimize your fuel and energy usage by making data-driven decisions.</p>
+                     </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
         <section id="features" class="py-16">
             <h2 class="text-3xl font-bold mb-16 text-center text-slate-900 dark:text-slate-100">Features in Action</h2>
             
-            <div class="space-y-24">
-                <!-- Feature 1: Home Page -->
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="bg-slate-800 p-4 rounded-3xl shadow-2xl">
-                        <div class="bg-black rounded-2xl overflow-hidden">
-                           <img src="home_page.png" alt="Home Page Screenshot" class="w-full h-auto object-cover object-top max-h-[600px]">
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Transactions Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Detailed Expense Tracking</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Monitor fuel expenses with an interactive chart and a detailed transaction history. Easily add new entries and filter by type.</p>
                     </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Dashboard at a Glance</h3>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400">The home screen provides an immediate overview of your vehicle's status, including current electric and gas fuel levels, and a list of your most recent trips.</p>
+                    <div class="px-6 pb-6 mt-auto">
+                        <div class="phone-mockup">
+                            <img src="transactions.png" alt="Transactions Screenshot">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Feature 2: Transactions -->
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="md:order-2">
-                         <div class="bg-slate-800 p-4 rounded-3xl shadow-2xl">
-                            <div class="bg-black rounded-2xl overflow-hidden">
-                                <img src="transactions.png" alt="Transactions Screenshot" class="w-full h-auto object-cover object-top max-h-[600px]">
-                            </div>
+                <!-- Fuel Levels Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Visual Fuel Gauges</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Get a technical dashboard view of your gas and electric levels, with breakdowns for each fill-up or charge.</p>
+                    </div>
+                     <div class="px-6 pb-6 mt-auto">
+                        <div class="phone-mockup">
+                            <img src="fuel_levels.png" alt="Fuel Levels Screenshot">
                         </div>
-                    </div>
-                    <div class="md:order-1">
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Detailed Expense Tracking</h3>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400">Monitor your fuel expenses with an interactive chart and a detailed transaction history. Easily add new entries for gas or electric charging and filter by transaction type.</p>
-                    </div>
-                </div>
-
-                <!-- Feature 3: Fuel Levels -->
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                         <div class="bg-slate-800 p-4 rounded-3xl shadow-2xl">
-                            <div class="bg-black rounded-2xl overflow-hidden">
-                               <img src="fuel_levels.png" alt="Fuel Levels Screenshot" class="w-full h-auto object-cover object-top max-h-[600px]">
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Visual Fuel Gauges</h3>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400">Get a technical-style dashboard view of your gas and electric levels. The gauges are sectioned to show individual fill-ups or charges, providing a clear picture of your remaining fuel.</p>
                     </div>
                 </div>
                 
-                <!-- Feature 4: Trip Details -->
-                <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div class="md:order-2">
-                         <div class="bg-slate-800 p-4 rounded-3xl shadow-2xl">
-                            <div class="bg-black rounded-2xl overflow-hidden">
-                                <img src="trip.png" alt="Trip Details Screenshot" class="w-full h-auto object-cover object-top max-h-[600px]">
-                            </div>
+                <!-- Trip Details Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Comprehensive Trip Analysis</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Drill down into individual trips to see a full breakdown of miles, cost, and fuel consumed to understand the efficiency of each journey.</p>
+                    </div>
+                    <div class="px-6 pb-6 mt-auto">
+                        <div class="phone-mockup">
+                            <img src="trip.png" alt="Trip Details Screenshot">
                         </div>
                     </div>
-                    <div class="md:order-1">
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Comprehensive Trip Analysis</h3>
-                        <p class="mt-2 text-slate-600 dark:text-slate-400">Drill down into individual trips to see a full breakdown of miles driven, total cost, and the specific amounts of gas and electricity consumed, helping you understand the efficiency of each journey.</p>
+                </div>
+
+                 <!-- Settings Card -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Customizable Settings</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Configure server details, manage saved places, and customize the app to fit your needs.</p>
+                    </div>
+                    <div class="px-6 pb-6 mt-auto">
+                        <div class="phone-mockup">
+                            <img src="settings.png" alt="Settings Screenshot">
+                        </div>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section id="cta" class="py-16 text-center">
+             <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Ready to Take Control of Your Fuel Costs?</h2>
+             <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Check out the project on GitHub to see the code, contribute, or learn more about how PowerTrip was built.</p>
+             <div class="mt-8">
+                  <a href="https://github.com/NPontious/PowerTrip" target="_blank" rel="noopener noreferrer" class="bg-slate-800 text-white px-8 py-4 rounded-lg font-semibold hover:bg-slate-900 transition-all shadow-lg text-lg inline-flex items-center space-x-3 dark:bg-slate-700 dark:hover:bg-slate-600">
+                      <i class="fab fa-github fa-lg"></i>
+                      <span>View on GitHub</span>
+                  </a>
+             </div>
         </section>
 
         <footer class="text-center mt-16 py-6 border-t border-slate-200 dark:border-slate-800">
