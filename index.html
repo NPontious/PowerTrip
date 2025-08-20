@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerTrip | Project Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark')
+        } else {
+          document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm dark:bg-slate-900/80">
+        <div class="container mx-auto max-w-6xl px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="#" class="text-xl font-bold text-slate-900 dark:text-slate-100">PowerTrip</a>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#about" class="text-slate-600 hover:text-blue-500 transition-colors dark:text-slate-400 dark:hover:text-blue-400">About</a>
+                    <a href="#features" class="text-slate-600 hover:text-blue-500 transition-colors dark:text-slate-400 dark:hover:text-blue-400">Features</a>
+                    <a href="https://github.com/NPontious/PowerTrip" target="_blank" rel="noopener noreferrer" class="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-900 transition-all shadow flex items-center space-x-2 dark:bg-slate-700 dark:hover:bg-slate-600">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto max-w-6xl p-4 sm:p-6 lg:p-8">
+
+        <header id="about" class="py-16 md:py-24">
+            <div class="grid md:grid-cols-3 gap-8 items-center">
+                <div class="md:col-span-2 text-center md:text-left">
+                    <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-slate-100 leading-tight">
+                        PowerTrip: Fuel & Energy Tracker
+                    </h1>
+                    <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto md:mx-0">
+                        A cross-platform mobile application built with Flutter to track vehicle fuel, energy usage, and associated costs.
+                    </p>
+                    <div class="mt-8 flex justify-center md:justify-start space-x-4">
+                        <a href="#features" class="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-all shadow-lg">View Features</a>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                     <div class="bg-gradient-to-br from-blue-400 to-indigo-600 rounded-2xl w-64 h-64 mx-auto shadow-2xl flex items-center justify-center p-4">
+                        <img src="assets/images/car.png" alt="Car" class="max-h-full max-w-full">
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section id="features" class="py-16">
+            <h2 class="text-3xl font-bold mb-12 text-center text-slate-900 dark:text-slate-100">Features in Action</h2>
+            
+            <div class="space-y-24">
+                <!-- Feature 1: Home Page -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/2">
+                        <img src="home_page.png" alt="Home Page Screenshot" class="rounded-lg shadow-lg w-full h-auto object-contain">
+                    </div>
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Dashboard at a Glance</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">The home screen provides an immediate overview of your vehicle's status, including current electric and gas fuel levels, and a list of your most recent trips.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Transactions -->
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+                    <div class="md:w-1/2">
+                        <img src="transactions.png" alt="Transactions Screenshot" class="rounded-lg shadow-lg w-full h-auto object-contain">
+                    </div>
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Detailed Expense Tracking</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Monitor your fuel expenses with an interactive chart and a detailed transaction history. Easily add new entries for gas or electric charging and filter by transaction type.</p>
+                    </div>
+                </div>
+
+                <!-- Feature 3: Fuel Levels -->
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/2">
+                        <img src="fuel_levels.png" alt="Fuel Levels Screenshot" class="rounded-lg shadow-lg w-full h-auto object-contain">
+                    </div>
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Visual Fuel Gauges</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Get a technical-style dashboard view of your gas and electric levels. The gauges are sectioned to show individual fill-ups or charges, providing a clear picture of your remaining fuel.</p>
+                    </div>
+                </div>
+                
+                <!-- Feature 4: Trip Details -->
+                <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+                    <div class="md:w-1/2">
+                        <img src="trip.png" alt="Trip Details Screenshot" class="rounded-lg shadow-lg w-full h-auto object-contain">
+                    </div>
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Comprehensive Trip Analysis</h3>
+                        <p class="mt-2 text-slate-600 dark:text-slate-400">Drill down into individual trips to see a full breakdown of miles driven, total cost, and the specific amounts of gas and electricity consumed, helping you understand the efficiency of each journey.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center mt-16 py-6 border-t border-slate-200 dark:border-slate-700">
+            <p class="text-slate-500 dark:text-slate-400">© 2025 Nicholas Pontious. Built with Flutter & Tailwind CSS.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
