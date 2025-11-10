@@ -44,7 +44,8 @@
 
 
 	<key>NSCameraUsageDescription</key>
-    <string>For scanning gas pumps</string>
+    <string>For easy fuel transaction uploads</string>
+
 
 
 	<key>UILaunchStoryboardName</key>

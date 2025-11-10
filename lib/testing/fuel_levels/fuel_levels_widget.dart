@@ -1,32 +1,19 @@
 import '/backend/api_requests/api_calls.dart';
-import '/backend/schema/structs/index.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/backend/schema/structs/index.dart';
 import '/custom_code/widgets/index.dart' as custom_widgets;
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 import 'fuel_levels_model.dart';
 export 'fuel_levels_model.dart';
 
 class FuelLevelsWidget extends StatefulWidget {
-  /// Design a clean, technical dashboard page featuring two status indicators:
-  /// one for Gas Level and one for Electric Charge, using my app's theme colors
-  /// and fonts. The Gas Level Indicator should display a vertical bar or gauge
-  /// divided into sections, each representing gas filled at different times,
-  /// with distinct theme-based colors. Next to it, include the title "Gas
-  /// level," the values "64%" and "6.1 Gal," and smaller breakdowns like "1.2
-  /// Gal | $3.10" and "5.2 Gal | $2.98." The Electric Charge Indicator should
-  /// feature a vertical battery bar or gauge, also divided into sections with
-  /// theme-based colors. Display the title "Electric charge," values like "13%"
-  /// and "1.2 kWh," and a smaller breakdown such as "1.2 kWh | $0.14." Arrange
-  /// the Gas Level indicator at the top and the Electric Charge indicator
-  /// below, adding simple pipes or connectors to create a technical, industrial
-  /// look. Ensure the design automatically adapts to my app's theme for colors,
-  /// fonts, and spacing while maintaining a responsive and visually clean
-  /// layout.
   const FuelLevelsWidget({super.key});
+
+  static String routeName = 'FuelLevels';
+  static String routePath = '/fuelLevels';
 
   @override
   State<FuelLevelsWidget> createState() => _FuelLevelsWidgetState();
@@ -56,9 +43,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<ApiCallResponse>(
-      future: _model.fuelLevel(
-        requestFn: () => TankGroup.tankAllCall.call(),
-      ),
+      future: FuelGroup.statusCall.call(),
       builder: (context, snapshot) {
         // Customize what your widget looks like when it's loading.
         if (!snapshot.hasData) {
@@ -68,15 +53,16 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
               child: SizedBox(
                 width: 50.0,
                 height: 50.0,
-                child: SpinKitRing(
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 50.0,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    FlutterFlowTheme.of(context).primary,
+                  ),
                 ),
               ),
             ),
           );
         }
-        final fuelLevelsTankAllResponse = snapshot.data!;
+        final fuelLevelsStatusResponse = snapshot.data!;
 
         return GestureDetector(
           onTap: () {
@@ -92,16 +78,25 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
               title: Text(
                 'Fuel Levels',
                 style: FlutterFlowTheme.of(context).headlineMedium.override(
-                      fontFamily:
-                          FlutterFlowTheme.of(context).headlineMediumFamily,
+                      font: GoogleFonts.interTight(
+                        fontWeight: FlutterFlowTheme.of(context)
+                            .headlineMedium
+                            .fontWeight,
+                        fontStyle: FlutterFlowTheme.of(context)
+                            .headlineMedium
+                            .fontStyle,
+                      ),
                       color: Colors.white,
                       fontSize: 28.0,
                       letterSpacing: 0.0,
-                      useGoogleFonts: GoogleFonts.asMap().containsKey(
-                          FlutterFlowTheme.of(context).headlineMediumFamily),
+                      fontWeight: FlutterFlowTheme.of(context)
+                          .headlineMedium
+                          .fontWeight,
+                      fontStyle:
+                          FlutterFlowTheme.of(context).headlineMedium.fontStyle,
                     ),
               ),
-              actions: const [],
+              actions: [],
               centerTitle: false,
             ),
             body: SafeArea(
@@ -127,7 +122,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                     ),
                     Padding(
                       padding:
-                          const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                       child: Material(
                         color: Colors.transparent,
                         elevation: 2.0,
@@ -145,7 +140,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(20.0),
+                                padding: EdgeInsets.all(20.0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,49 +150,72 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .headlineSmall
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .headlineSmallFamily,
+                                            font: GoogleFonts.interTight(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .fontStyle,
+                                            ),
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineSmallFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmall
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmall
+                                                    .fontStyle,
                                           ),
                                     ),
-                                    SizedBox(
+                                    Container(
                                       width: 200.0,
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           GradientText(
                                             formatNumber(
-                                              TankStruct.maybeFromMap(
-                                                          fuelLevelsTankAllResponse
-                                                              .jsonBody)!
-                                                      .gas
-                                                      .firstOrNull!
-                                                      .amount /
+                                              (FuelGroup.statusCall
+                                                      .gasTankAmount(
+                                                        fuelLevelsStatusResponse
+                                                            .jsonBody,
+                                                      )!
+                                                      .firstOrNull!) /
                                                   12,
                                               formatType: FormatType.percent,
                                             ),
                                             style: FlutterFlowTheme.of(context)
                                                 .displaySmall
                                                 .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .displaySmallFamily,
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .displaySmall
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .displaySmall
+                                                            .fontStyle,
+                                                  ),
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .primary,
                                                   letterSpacing: 0.0,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .displaySmallFamily),
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .displaySmall
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .displaySmall
+                                                          .fontStyle,
                                                 ),
                                             colors: [
                                               FlutterFlowTheme.of(context)
@@ -212,48 +230,60 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             gradientType: GradientType.linear,
                                           ),
                                           Text(
-                                            formatNumber(
-                                              TankStruct.maybeFromMap(
-                                                      fuelLevelsTankAllResponse
-                                                          .jsonBody)!
-                                                  .gas
-                                                  .firstOrNull!
-                                                  .amount,
-                                              formatType: FormatType.custom,
-                                              format: '.## gal',
-                                              locale: '',
+                                            valueOrDefault<String>(
+                                              FuelGroup.statusCall
+                                                  .gasTankAmount(
+                                                    fuelLevelsStatusResponse
+                                                        .jsonBody,
+                                                  )
+                                                  ?.firstOrNull
+                                                  ?.toString(),
+                                              '0000',
                                             ),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleLarge
                                                 .override(
-                                                  fontFamily:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .titleLargeFamily,
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .titleLarge
+                                                            .fontStyle,
+                                                  ),
                                                   color: FlutterFlowTheme.of(
                                                           context)
                                                       .secondaryText,
                                                   letterSpacing: 0.0,
-                                                  useGoogleFonts: GoogleFonts
-                                                          .asMap()
-                                                      .containsKey(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .titleLargeFamily),
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
                                                 ),
                                           ),
-                                        ].divide(const SizedBox(width: 8.0)),
+                                        ].divide(SizedBox(width: 8.0)),
                                       ),
                                     ),
-                                    SizedBox(
+                                    Container(
                                       width: 200.0,
                                       child: Builder(
                                         builder: (context) {
-                                          final levels = (TankStruct.maybeFromMap(
-                                                          fuelLevelsTankAllResponse
-                                                              .jsonBody)
-                                                      ?.gas
-                                                      .toList() ??
+                                          final levels = (FuelGroup.statusCall
+                                                      .gasTankID(
+                                                        fuelLevelsStatusResponse
+                                                            .jsonBody,
+                                                      )
+                                                      ?.toList() ??
                                                   [])
                                               .take(3)
                                               .toList();
@@ -264,7 +294,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             scrollDirection: Axis.vertical,
                                             itemCount: levels.length,
                                             separatorBuilder: (_, __) =>
-                                                const SizedBox(height: 3.0),
+                                                SizedBox(height: 3.0),
                                             itemBuilder:
                                                 (context, levelsIndex) {
                                               final levelsItem =
@@ -277,14 +307,9 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                     height: 12.0,
                                                     decoration: BoxDecoration(
                                                       color:
-                                                          valueOrDefault<Color>(
-                                                        _model.colors
-                                                            .elementAtOrNull(
-                                                                levelsIndex),
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .error,
-                                                      ),
+                                                          FlutterFlowTheme.of(
+                                                                  context)
+                                                              .primary,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               6.0),
@@ -297,35 +322,48 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                     text: TextSpan(
                                                       children: [
                                                         TextSpan(
-                                                          text: formatNumber(
-                                                            FuelStruct.maybeFromMap(
-                                                                    fuelLevelsTankAllResponse
-                                                                        .jsonBody)!
-                                                                .gas
-                                                                .amount,
-                                                            formatType:
-                                                                FormatType
-                                                                    .custom,
-                                                            format: '.## gal',
-                                                            locale: '',
+                                                          text: valueOrDefault<
+                                                              String>(
+                                                            (FuelGroup
+                                                                    .statusCall
+                                                                    .gasTankAmount(
+                                                                      fuelLevelsStatusResponse
+                                                                          .jsonBody,
+                                                                    )
+                                                                    ?.elementAtOrNull(
+                                                                        levelsIndex))
+                                                                ?.toString(),
+                                                            '0000',
                                                           ),
                                                           style: FlutterFlowTheme
                                                                   .of(context)
                                                               .bodyMedium
                                                               .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
                                                                 color: FlutterFlowTheme.of(
                                                                         context)
                                                                     .secondaryText,
                                                                 letterSpacing:
                                                                     0.0,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
+                                                                fontWeight: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontWeight,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
                                                               ),
                                                         ),
                                                         TextSpan(
@@ -334,53 +372,84 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                                   .of(context)
                                                               .bodyMedium
                                                               .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
                                                                 color: FlutterFlowTheme.of(
                                                                         context)
                                                                     .secondaryText,
                                                                 letterSpacing:
                                                                     0.0,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
+                                                                fontWeight: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontWeight,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
                                                               ),
                                                         ),
                                                         TextSpan(
-                                                          text: formatNumber(
-                                                            FuelStruct.maybeFromMap(
-                                                                    fuelLevelsTankAllResponse
-                                                                        .jsonBody)!
-                                                                .gas
-                                                                .price,
-                                                            formatType:
-                                                                FormatType
-                                                                    .decimal,
-                                                            decimalType:
-                                                                DecimalType
-                                                                    .automatic,
-                                                            currency: '',
+                                                          text: valueOrDefault<
+                                                              String>(
+                                                            formatNumber(
+                                                              FuelGroup
+                                                                  .statusCall
+                                                                  .gasTankPrices(
+                                                                    fuelLevelsStatusResponse
+                                                                        .jsonBody,
+                                                                  )
+                                                                  ?.elementAtOrNull(
+                                                                      levelsIndex),
+                                                              formatType:
+                                                                  FormatType
+                                                                      .decimal,
+                                                              decimalType:
+                                                                  DecimalType
+                                                                      .automatic,
+                                                              currency: '',
+                                                            ),
+                                                            '0000',
                                                           ),
                                                           style: FlutterFlowTheme
                                                                   .of(context)
                                                               .bodyMedium
                                                               .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
                                                                 color: FlutterFlowTheme.of(
                                                                         context)
                                                                     .secondaryText,
                                                                 letterSpacing:
                                                                     0.0,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
+                                                                fontWeight: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontWeight,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
                                                               ),
                                                         )
                                                       ],
@@ -389,20 +458,32 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                                   context)
                                                               .bodyMedium
                                                               .override(
-                                                                fontFamily: FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .bodyMediumFamily,
+                                                                font:
+                                                                    GoogleFonts
+                                                                        .inter(
+                                                                  fontWeight: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontWeight,
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .bodyMedium
+                                                                      .fontStyle,
+                                                                ),
                                                                 letterSpacing:
                                                                     0.0,
-                                                                useGoogleFonts: GoogleFonts
-                                                                        .asMap()
-                                                                    .containsKey(
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .bodyMediumFamily),
+                                                                fontWeight: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontWeight,
+                                                                fontStyle: FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
                                                               ),
                                                     ),
                                                   ),
-                                                ].divide(const SizedBox(width: 12.0)),
+                                                ].divide(SizedBox(width: 12.0)),
                                               );
                                             },
                                           );
@@ -414,7 +495,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                               ),
                               Flexible(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
+                                  padding: EdgeInsets.all(20.0),
                                   child: Builder(
                                     builder: (context) {
                                       if (_model.switchValue ?? false) {
@@ -425,16 +506,22 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             color: FlutterFlowTheme.of(context)
                                                 .secondaryBackground,
                                           ),
-                                          child: SizedBox(
+                                          child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets.LiquidJar(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              subFuelList: TankStruct.maybeFromMap(
-                                                      fuelLevelsTankAllResponse
-                                                          .jsonBody)!
-                                                  .gas,
+                                              subFuelList: (fuelLevelsStatusResponse
+                                                          .jsonBody
+                                                          .toList()
+                                                          .map<SubFuelStruct?>(
+                                                              SubFuelStruct
+                                                                  .maybeFromMap)
+                                                          .toList()
+                                                      as Iterable<
+                                                          SubFuelStruct?>)
+                                                  .withoutNulls,
                                             ),
                                           ),
                                         );
@@ -446,16 +533,22 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             color: FlutterFlowTheme.of(context)
                                                 .secondaryBackground,
                                           ),
-                                          child: SizedBox(
+                                          child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets.TankChart(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              subFuelData: TankStruct.maybeFromMap(
-                                                      fuelLevelsTankAllResponse
-                                                          .jsonBody)!
-                                                  .gas,
+                                              subFuelData: (fuelLevelsStatusResponse
+                                                          .jsonBody
+                                                          .toList()
+                                                          .map<SubFuelStruct?>(
+                                                              SubFuelStruct
+                                                                  .maybeFromMap)
+                                                          .toList()
+                                                      as Iterable<
+                                                          SubFuelStruct?>)
+                                                  .withoutNulls,
                                             ),
                                           ),
                                         );
@@ -471,7 +564,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                     ),
                     Padding(
                       padding:
-                          const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                       child: Material(
                         color: Colors.transparent,
                         elevation: 2.0,
@@ -489,7 +582,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(20.0),
+                                padding: EdgeInsets.all(20.0),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,14 +592,25 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .headlineSmall
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .headlineSmallFamily,
+                                            font: GoogleFonts.interTight(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .headlineSmall
+                                                      .fontStyle,
+                                            ),
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .headlineSmallFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmall
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmall
+                                                    .fontStyle,
                                           ),
                                     ),
                                     Container(
@@ -520,19 +624,30 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .displaySmall
                                               .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .displaySmallFamily,
+                                                font: GoogleFonts.interTight(
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .displaySmall
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .displaySmall
+                                                          .fontStyle,
+                                                ),
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .tertiary,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .displaySmallFamily),
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .displaySmall
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .displaySmall
+                                                        .fontStyle,
                                               ),
                                         ),
                                         Text(
@@ -540,32 +655,44 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                           style: FlutterFlowTheme.of(context)
                                               .titleLarge
                                               .override(
-                                                fontFamily:
-                                                    FlutterFlowTheme.of(context)
-                                                        .titleLargeFamily,
+                                                font: GoogleFonts.interTight(
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .titleLarge
+                                                          .fontStyle,
+                                                ),
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .secondaryText,
                                                 letterSpacing: 0.0,
-                                                useGoogleFonts: GoogleFonts
-                                                        .asMap()
-                                                    .containsKey(
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .titleLargeFamily),
+                                                fontWeight:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleLarge
+                                                        .fontWeight,
+                                                fontStyle:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleLarge
+                                                        .fontStyle,
                                               ),
                                         ),
-                                      ].divide(const SizedBox(width: 8.0)),
+                                      ].divide(SizedBox(width: 8.0)),
                                     ),
-                                    SizedBox(
+                                    Container(
                                       width: 200.0,
                                       child: Builder(
                                         builder: (context) {
-                                          final levels = (TankStruct.maybeFromMap(
-                                                          fuelLevelsTankAllResponse
-                                                              .jsonBody)
-                                                      ?.electric
-                                                      .toList() ??
+                                          final levels = (FuelGroup.statusCall
+                                                      .electricTankID(
+                                                        fuelLevelsStatusResponse
+                                                            .jsonBody,
+                                                      )
+                                                      ?.toList() ??
                                                   [])
                                               .take(3)
                                               .toList();
@@ -601,23 +728,36 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                                             context)
                                                         .bodyMedium
                                                         .override(
-                                                          fontFamily:
-                                                              FlutterFlowTheme.of(
-                                                                      context)
-                                                                  .bodyMediumFamily,
+                                                          font:
+                                                              GoogleFonts.inter(
+                                                            fontWeight:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontWeight,
+                                                            fontStyle:
+                                                                FlutterFlowTheme.of(
+                                                                        context)
+                                                                    .bodyMedium
+                                                                    .fontStyle,
+                                                          ),
                                                           color: FlutterFlowTheme
                                                                   .of(context)
                                                               .secondaryText,
                                                           letterSpacing: 0.0,
-                                                          useGoogleFonts: GoogleFonts
-                                                                  .asMap()
-                                                              .containsKey(
-                                                                  FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .bodyMediumFamily),
+                                                          fontWeight:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontWeight,
+                                                          fontStyle:
+                                                              FlutterFlowTheme.of(
+                                                                      context)
+                                                                  .bodyMedium
+                                                                  .fontStyle,
                                                         ),
                                                   ),
-                                                ].divide(const SizedBox(width: 12.0)),
+                                                ].divide(SizedBox(width: 12.0)),
                                               );
                                             },
                                           );
@@ -629,7 +769,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                               ),
                               Flexible(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(20.0),
+                                  padding: EdgeInsets.all(20.0),
                                   child: Builder(
                                     builder: (context) {
                                       if (_model.switchValue ?? false) {
@@ -640,16 +780,22 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             color: FlutterFlowTheme.of(context)
                                                 .secondaryBackground,
                                           ),
-                                          child: SizedBox(
+                                          child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets.LiquidJar(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              subFuelList: TankStruct.maybeFromMap(
-                                                      fuelLevelsTankAllResponse
-                                                          .jsonBody)!
-                                                  .electric,
+                                              subFuelList: (fuelLevelsStatusResponse
+                                                          .jsonBody
+                                                          .toList()
+                                                          .map<SubFuelStruct?>(
+                                                              SubFuelStruct
+                                                                  .maybeFromMap)
+                                                          .toList()
+                                                      as Iterable<
+                                                          SubFuelStruct?>)
+                                                  .withoutNulls,
                                             ),
                                           ),
                                         );
@@ -661,16 +807,22 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                             color: FlutterFlowTheme.of(context)
                                                 .secondaryBackground,
                                           ),
-                                          child: SizedBox(
+                                          child: Container(
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: custom_widgets.TankChart(
                                               width: double.infinity,
                                               height: double.infinity,
-                                              subFuelData: TankStruct.maybeFromMap(
-                                                      fuelLevelsTankAllResponse
-                                                          .jsonBody)!
-                                                  .electric,
+                                              subFuelData: (fuelLevelsStatusResponse
+                                                          .jsonBody
+                                                          .toList()
+                                                          .map<SubFuelStruct?>(
+                                                              SubFuelStruct
+                                                                  .maybeFromMap)
+                                                          .toList()
+                                                      as Iterable<
+                                                          SubFuelStruct?>)
+                                                  .withoutNulls,
                                             ),
                                           ),
                                         );
@@ -686,7 +838,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                     ),
                     Padding(
                       padding:
-                          const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                          EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                       child: Material(
                         color: Colors.transparent,
                         elevation: 2.0,
@@ -700,7 +852,7 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                             borderRadius: BorderRadius.circular(16.0),
                           ),
                           child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
+                            padding: EdgeInsetsDirectional.fromSTEB(
                                 20.0, 20.0, 20.0, 20.0),
                             child: Column(
                               mainAxisSize: MainAxisSize.max,
@@ -710,13 +862,23 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                   style: FlutterFlowTheme.of(context)
                                       .headlineSmall
                                       .override(
-                                        fontFamily: FlutterFlowTheme.of(context)
-                                            .headlineSmallFamily,
+                                        font: GoogleFonts.interTight(
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineSmall
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineSmall
+                                                  .fontStyle,
+                                        ),
                                         letterSpacing: 0.0,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey(
-                                                FlutterFlowTheme.of(context)
-                                                    .headlineSmallFamily),
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .headlineSmall
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .headlineSmall
+                                            .fontStyle,
                                       ),
                                 ),
                                 Row(
@@ -729,14 +891,25 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                     Text(
@@ -744,16 +917,27 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             color: FlutterFlowTheme.of(context)
                                                 .success,
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                   ],
@@ -768,14 +952,25 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                     Text(
@@ -783,16 +978,27 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             color: FlutterFlowTheme.of(context)
                                                 .primary,
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                   ],
@@ -807,14 +1013,25 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                     Text(
@@ -822,27 +1039,38 @@ class _FuelLevelsWidgetState extends State<FuelLevelsWidget> {
                                       style: FlutterFlowTheme.of(context)
                                           .bodyLarge
                                           .override(
-                                            fontFamily:
-                                                FlutterFlowTheme.of(context)
-                                                    .bodyLargeFamily,
+                                            font: GoogleFonts.inter(
+                                              fontWeight:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontWeight,
+                                              fontStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyLarge
+                                                      .fontStyle,
+                                            ),
                                             color: FlutterFlowTheme.of(context)
                                                 .secondaryText,
                                             letterSpacing: 0.0,
-                                            useGoogleFonts: GoogleFonts.asMap()
-                                                .containsKey(
-                                                    FlutterFlowTheme.of(context)
-                                                        .bodyLargeFamily),
+                                            fontWeight:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontWeight,
+                                            fontStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .bodyLarge
+                                                    .fontStyle,
                                           ),
                                     ),
                                   ],
                                 ),
-                              ].divide(const SizedBox(height: 16.0)),
+                              ].divide(SizedBox(height: 16.0)),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ].divide(const SizedBox(height: 24.0)),
+                  ].divide(SizedBox(height: 24.0)),
                 ),
               ),
             ),

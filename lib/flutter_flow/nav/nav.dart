@@ -5,9 +5,10 @@ import 'package:provider/provider.dart';
 
 import '/backend/schema/structs/index.dart';
 
-import '/index.dart';
 import '/main.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+
+import '/index.dart';
 
 export 'package:go_router/go_router.dart';
 export 'serialization_util.dart';
@@ -30,49 +31,39 @@ class AppStateNotifier extends ChangeNotifier {
   }
 }
 
-GoRouter createRouter(AppStateNotifier appStateNotifier, [Widget? entryPage]) =>
-    GoRouter(
+GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
       navigatorKey: appNavigatorKey,
-      errorBuilder: (context, state) => appStateNotifier.showSplashImage
-          ? Builder(
-              builder: (context) => Container(
-                color: Colors.transparent,
-                child: Image.asset(
-                  'assets/images/icon_silver-ford-fusion-energi-2017.svg',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            )
-          : entryPage ?? const NavBarPage(),
+      errorBuilder: (context, state) => NavBarPage(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => appStateNotifier.showSplashImage
-              ? Builder(
-                  builder: (context) => Container(
-                    color: Colors.transparent,
-                    child: Image.asset(
-                      'assets/images/icon_silver-ford-fusion-energi-2017.svg',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                )
-              : entryPage ?? const NavBarPage(),
+          builder: (context, _) => NavBarPage(),
         ),
         FFRoute(
-          name: 'HomePage',
-          path: '/homePage',
-          builder: (context, params) => params.isEmpty
-              ? const NavBarPage(initialPage: 'HomePage')
-              : const HomePageWidget(),
-        ),
+            name: HomePageWidget.routeName,
+            path: HomePageWidget.routePath,
+            builder: (context, params) => params.isEmpty
+                ? NavBarPage(initialPage: 'HomePage')
+                : NavBarPage(
+                    initialPage: 'HomePage',
+                    page: HomePageWidget(),
+                  )),
         FFRoute(
-          name: 'Trip',
-          path: '/trip',
+            name: TransactionsWidget.routeName,
+            path: TransactionsWidget.routePath,
+            builder: (context, params) => params.isEmpty
+                ? NavBarPage(initialPage: 'Transactions')
+                : NavBarPage(
+                    initialPage: 'Transactions',
+                    page: TransactionsWidget(),
+                  )),
+        FFRoute(
+          name: TripWidget.routeName,
+          path: TripWidget.routePath,
           builder: (context, params) => TripWidget(
             tripNum: params.getParam(
               'tripNum',
@@ -81,31 +72,19 @@ GoRouter createRouter(AppStateNotifier appStateNotifier, [Widget? entryPage]) =>
           ),
         ),
         FFRoute(
-          name: 'Settings',
-          path: '/settings',
-          builder: (context, params) => params.isEmpty
-              ? const NavBarPage(initialPage: 'Settings')
-              : const SettingsWidget(),
+          name: FuelLevelsWidget.routeName,
+          path: FuelLevelsWidget.routePath,
+          builder: (context, params) => FuelLevelsWidget(),
         ),
         FFRoute(
-          name: 'Transactions',
-          path: '/transactions',
-          builder: (context, params) => params.isEmpty
-              ? const NavBarPage(initialPage: 'Transactions')
-              : TransactionsWidget(
-                  payments: params.getParam<FuelStruct>(
-                    'payments',
-                    ParamType.DataStruct,
-                    isList: true,
-                    structBuilder: FuelStruct.fromSerializableMap,
-                  ),
-                ),
-        ),
-        FFRoute(
-          name: 'FuelLevels',
-          path: '/fuelLevels',
-          builder: (context, params) => const FuelLevelsWidget(),
-        )
+            name: SettingsWidget.routeName,
+            path: SettingsWidget.routePath,
+            builder: (context, params) => params.isEmpty
+                ? NavBarPage(initialPage: 'Settings')
+                : NavBarPage(
+                    initialPage: 'Settings',
+                    page: SettingsWidget(),
+                  ))
       ].map((r) => r.toRoute(appStateNotifier)).toList(),
     );
 
@@ -270,7 +249,7 @@ class TransitionInfo {
   final Duration duration;
   final Alignment? alignment;
 
-  static TransitionInfo appDefault() => const TransitionInfo(hasTransition: false);
+  static TransitionInfo appDefault() => TransitionInfo(hasTransition: false);
 }
 
 class RootPageContext {

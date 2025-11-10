@@ -27,7 +27,7 @@ class FillDialogModel extends FlutterFlowModel<FillDialogWidget> {
   FocusNode? textFieldFocusNode3;
   TextEditingController? textController3;
   String? Function(BuildContext, String?)? textController3Validator;
-  // Stores action output result for [Backend Call - API (AddSubFuel)] action in confirmButton widget.
+  // Stores action output result for [Backend Call - API (Add Gas)] action in confirmButton widget.
   ApiCallResponse? apiResultdb4;
 
   @override

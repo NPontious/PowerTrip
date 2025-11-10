@@ -192,3 +192,5 @@ class LoadingWithTextWidget extends StatelessWidget {
         ),
       );
 }
+// Set your widget name, define your parameter, and then add the
+// boilerplate code using the green button on the right!

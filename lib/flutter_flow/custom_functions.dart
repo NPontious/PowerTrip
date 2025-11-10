@@ -14,7 +14,6 @@ double calcDistance(
   LatLng latLng1,
   LatLng latLng2,
 ) {
-  // Write me a funtion that calculates the distance between a pair of latlng
   const double earthRadius = 6371.0; // in kilometers
   final double lat1 = math.pi / 180.0 * latLng1.latitude;
   final double lon1 = math.pi / 180.0 * latLng1.longitude;
@@ -44,19 +43,23 @@ PlaceStruct? knownPlace(
   return null;
 }
 
-LatLng midpoint(
-  LatLng loc1,
-  LatLng loc2,
-) {
-  // return midpoint of two locations
-  double avgLat = (loc1.latitude + loc2.latitude) / 2;
-  double avgLng = (loc1.longitude + loc2.longitude) / 2;
-  return LatLng(avgLat, avgLng);
-}
-
 LatLng parseAsLoc(
   double lat,
   double lng,
 ) {
   return LatLng(lat, lng);
+}
+
+LatLng midpoint(
+  LatLng loc1,
+  LatLng loc2,
+) {
+  double avgLat = (loc1.latitude + loc2.latitude) / 2;
+  double avgLng = (loc1.longitude + loc2.longitude) / 2;
+  return LatLng(avgLat, avgLng);
+}
+
+String formatTime(String input) {
+  DateTime dateTime = DateFormat("dd-MMM-yyyy HH:mm:ss.SSS").parse(input);
+  return DateFormat("MM/dd HH:mm").format(dateTime);
 }

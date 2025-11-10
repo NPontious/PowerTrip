@@ -19,9 +19,9 @@ class FFAppState extends ChangeNotifier {
   }
 
   Future initializePersistedState() async {
-    secureStorage = const FlutterSecureStorage();
+    secureStorage = FlutterSecureStorage();
     await _safeInitAsync(() async {
-      _ServerUrl = await secureStorage.getString('ff_ServerUrl') ?? _ServerUrl;
+      _ServelUrl = await secureStorage.getString('ff_ServelUrl') ?? _ServelUrl;
     });
     await _safeInitAsync(() async {
       _Places = (await secureStorage.getStringList('ff_Places'))
@@ -37,9 +37,6 @@ class FFAppState extends ChangeNotifier {
               .toList() ??
           _Places;
     });
-    await _safeInitAsync(() async {
-      _CarImage = await secureStorage.getString('ff_CarImage') ?? _CarImage;
-    });
   }
 
   void update(VoidCallback callback) {
@@ -49,18 +46,21 @@ class FFAppState extends ChangeNotifier {
 
   late FlutterSecureStorage secureStorage;
 
-  String _ServerUrl = 'http://127.0.0.1:5000';
-  String get ServerUrl => _ServerUrl;
-  set ServerUrl(String value) {
-    _ServerUrl = value;
-    secureStorage.setString('ff_ServerUrl', value);
+  String _ServelUrl = 'http://192.168.1.31:5000';
+  String get ServelUrl => _ServelUrl;
+  set ServelUrl(String value) {
+    _ServelUrl = value;
+    secureStorage.setString('ff_ServelUrl', value);
   }
 
-  void deleteServerUrl() {
-    secureStorage.delete(key: 'ff_ServerUrl');
+  void deleteServelUrl() {
+    secureStorage.delete(key: 'ff_ServelUrl');
   }
 
-  List<PlaceStruct> _Places = [];
+  List<PlaceStruct> _Places = [
+    PlaceStruct.fromSerializableMap(jsonDecode(
+        '{\"name\":\"Wright State\",\"address\":\"3640 Colonel Glenn Hwy\",\"location\":\"39.7798542,-84.06510779999999\",\"city\":\"Fairborn\",\"state\":\"OH\",\"country\":\"United States\",\"zip\":\"45435\"}'))
+  ];
   List<PlaceStruct> get Places => _Places;
   set Places(List<PlaceStruct> value) {
     _Places = value;
@@ -103,18 +103,6 @@ class FFAppState extends ChangeNotifier {
     Places.insert(index, value);
     secureStorage.setStringList(
         'ff_Places', _Places.map((x) => x.serialize()).toList());
-  }
-
-  String _CarImage =
-      'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQZOzEzsRhB4ccL6BVJ-_47F8IZEr2WXEI8fVy4nTDU5jHO5Yaz';
-  String get CarImage => _CarImage;
-  set CarImage(String value) {
-    _CarImage = value;
-    secureStorage.setString('ff_CarImage', value);
-  }
-
-  void deleteCarImage() {
-    secureStorage.delete(key: 'ff_CarImage');
   }
 }
 
@@ -163,12 +151,12 @@ extension FlutterSecureStorageExtensions on FlutterSecureStorage {
         if (result == null || result.isEmpty) {
           return null;
         }
-        return const CsvToListConverter()
+        return CsvToListConverter()
             .convert(result)
             .first
             .map((e) => e.toString())
             .toList();
       });
   Future<void> setStringList(String key, List<String> value) async =>
-      await writeSync(key: key, value: const ListToCsvConverter().convert([value]));
+      await writeSync(key: key, value: ListToCsvConverter().convert([value]));
 }

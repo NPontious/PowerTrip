@@ -2,8 +2,8 @@ import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/custom_functions.dart' as functions;
+import '/index.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +12,9 @@ export 'home_page_model.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
+
+  static String routeName = 'HomePage';
+  static String routePath = '/homePage';
 
   @override
   State<HomePageWidget> createState() => _HomePageWidgetState();
@@ -41,257 +44,288 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
 
-    return FutureBuilder<ApiCallResponse>(
-      future: TripGroup.tripRangeCall.call(),
-      builder: (context, snapshot) {
-        // Customize what your widget looks like when it's loading.
-        if (!snapshot.hasData) {
-          return Scaffold(
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            body: Center(
-              child: SizedBox(
-                width: 50.0,
-                height: 50.0,
-                child: SpinKitRing(
-                  color: FlutterFlowTheme.of(context).primary,
-                  size: 50.0,
-                ),
-              ),
-            ),
-          );
-        }
-        final homePageTripRangeResponse = snapshot.data!;
-
-        return GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: Scaffold(
-            key: scaffoldKey,
-            backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
-            body: SafeArea(
-              top: true,
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    Align(
-                      alignment: const AlignmentDirectional(0.0, 0.0),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Container(
-                          width: double.infinity,
-                          height: 200.0,
-                          constraints: BoxConstraints(
-                            minWidth: MediaQuery.sizeOf(context).width * 0.2,
-                            minHeight: MediaQuery.sizeOf(context).height * 0.2,
-                            maxWidth: MediaQuery.sizeOf(context).width * 0.9,
-                            maxHeight: MediaQuery.sizeOf(context).height * 0.9,
-                          ),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.rectangle,
-                          ),
-                          child: Align(
-                            alignment: const AlignmentDirectional(0.0, 0.0),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(0.0),
-                              child: Image.asset(
-                                'assets/images/car.png',
-                                width: double.infinity,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        key: scaffoldKey,
+        backgroundColor: FlutterFlowTheme.of(context).secondaryBackground,
+        body: SafeArea(
+          top: true,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional(0.0, 0.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200.0,
+                      constraints: BoxConstraints(
+                        minWidth: MediaQuery.sizeOf(context).width * 0.2,
+                        minHeight: MediaQuery.sizeOf(context).height * 0.2,
+                        maxWidth: MediaQuery.sizeOf(context).width * 0.9,
+                        maxHeight: MediaQuery.sizeOf(context).height * 0.9,
+                      ),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                      ),
+                      child: Align(
+                        alignment: AlignmentDirectional(0.0, 0.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(0.0),
+                          child: Image.asset(
+                            'assets/images/car.png',
+                            width: double.infinity,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
                     ),
-                    Padding(
-                      padding:
-                          const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
-                      child: FutureBuilder<ApiCallResponse>(
-                        future: TankGroup.tankNumCall.call(
-                          tankId: 1,
-                        ),
-                        builder: (context, snapshot) {
-                          // Customize what your widget looks like when it's loading.
-                          if (!snapshot.hasData) {
-                            return Center(
-                              child: SizedBox(
-                                width: 50.0,
-                                height: 50.0,
-                                child: SpinKitRing(
-                                  color: FlutterFlowTheme.of(context).primary,
-                                  size: 50.0,
-                                ),
-                              ),
-                            );
-                          }
-                          final cardTankNumResponse = snapshot.data!;
-
-                          return InkWell(
-                            splashColor: Colors.transparent,
-                            focusColor: Colors.transparent,
-                            hoverColor: Colors.transparent,
-                            highlightColor: Colors.transparent,
-                            onTap: () async {
-                              context.pushNamed(
-                                'FuelLevels',
-                                extra: <String, dynamic>{
-                                  kTransitionInfoKey: const TransitionInfo(
-                                    hasTransition: true,
-                                    transitionType: PageTransitionType.scale,
-                                    alignment: Alignment.bottomCenter,
-                                  ),
-                                },
-                              );
-                            },
-                            child: Card(
-                              key: const ValueKey('Card_mo8w'),
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              color: FlutterFlowTheme.of(context)
-                                  .primaryBackground,
-                              elevation: 0.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 10.0, 0.0),
-                                          child: Icon(
-                                            Icons.electric_bolt,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            size: 30.0,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: CircularPercentIndicator(
-                                            percent: getJsonField(
-                                                  cardTankNumResponse.jsonBody,
-                                                  r'''$['Electric Fuels'][0]['Amount']''',
-                                                ) /
-                                                100,
-                                            radius: 50.0,
-                                            lineWidth: 15.0,
-                                            animation: true,
-                                            animateFromLastPercent: true,
-                                            progressColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .primary,
-                                            center: Text(
-                                              getJsonField(
-                                                cardTankNumResponse.jsonBody,
-                                                r'''$['Electric Fuels'][0]['Amount']''',
-                                              ).toString(),
-                                              textAlign: TextAlign.center,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineSmall
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .headlineSmallFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmallFamily),
-                                                      ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 100.0,
-                                      child: VerticalDivider(
-                                        thickness: 2.0,
-                                        color: FlutterFlowTheme.of(context)
-                                            .secondaryText,
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      children: [
-                                        Padding(
-                                          padding:
-                                              const EdgeInsetsDirectional.fromSTEB(
-                                                  0.0, 0.0, 10.0, 0.0),
-                                          child: Icon(
-                                            Icons.local_gas_station,
-                                            color: FlutterFlowTheme.of(context)
-                                                .primaryText,
-                                            size: 30.0,
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: CircularPercentIndicator(
-                                            percent: getJsonField(
-                                                  cardTankNumResponse.jsonBody,
-                                                  r'''$['Gas Fuels'][0]['Amount']''',
-                                                ) /
-                                                100,
-                                            radius: 50.0,
-                                            lineWidth: 15.0,
-                                            animation: true,
-                                            animateFromLastPercent: true,
-                                            progressColor:
-                                                FlutterFlowTheme.of(context)
-                                                    .primaryText,
-                                            center: Text(
-                                              getJsonField(
-                                                cardTankNumResponse.jsonBody,
-                                                r'''$['Gas Fuels'][0]['Amount']''',
-                                              ).toString(),
-                                              textAlign: TextAlign.center,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
-                                                      .headlineSmall
-                                                      .override(
-                                                        fontFamily:
-                                                            FlutterFlowTheme.of(
-                                                                    context)
-                                                                .headlineSmallFamily,
-                                                        letterSpacing: 0.0,
-                                                        useGoogleFonts: GoogleFonts
-                                                                .asMap()
-                                                            .containsKey(
-                                                                FlutterFlowTheme.of(
-                                                                        context)
-                                                                    .headlineSmallFamily),
-                                                      ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                  ),
+                ),
+                if (responsiveVisibility(
+                  context: context,
+                  phone: false,
+                ))
+                  Padding(
+                    padding:
+                        EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                    child: FutureBuilder<ApiCallResponse>(
+                      future: FuelGroup.statusCall.call(),
+                      builder: (context, snapshot) {
+                        // Customize what your widget looks like when it's loading.
+                        if (!snapshot.hasData) {
+                          return Center(
+                            child: SizedBox(
+                              width: 50.0,
+                              height: 50.0,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  FlutterFlowTheme.of(context).primary,
                                 ),
                               ),
                             ),
                           );
-                        },
-                      ),
+                        }
+                        final cardStatusResponse = snapshot.data!;
+
+                        return InkWell(
+                          splashColor: Colors.transparent,
+                          focusColor: Colors.transparent,
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          onTap: () async {
+                            context.pushNamed(
+                              FuelLevelsWidget.routeName,
+                              extra: <String, dynamic>{
+                                kTransitionInfoKey: TransitionInfo(
+                                  hasTransition: true,
+                                  transitionType: PageTransitionType.scale,
+                                  alignment: Alignment.bottomCenter,
+                                ),
+                              },
+                            );
+                          },
+                          child: Card(
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            color:
+                                FlutterFlowTheme.of(context).primaryBackground,
+                            elevation: 0.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 0.0, 10.0, 0.0),
+                                        child: Icon(
+                                          Icons.electric_bolt,
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          size: 30.0,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: CircularPercentIndicator(
+                                          percent: (FuelGroup.statusCall
+                                                  .electricTankAmount(
+                                                    cardStatusResponse.jsonBody,
+                                                  )!
+                                                  .firstOrNull!) /
+                                              100,
+                                          radius: 50.0,
+                                          lineWidth: 15.0,
+                                          animation: true,
+                                          animateFromLastPercent: true,
+                                          progressColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                          center: Text(
+                                            FuelGroup.statusCall
+                                                .electricTankAmount(
+                                                  cardStatusResponse.jsonBody,
+                                                )!
+                                                .firstOrNull!
+                                                .toString(),
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .headlineSmall
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .headlineSmall
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .headlineSmall
+                                                            .fontStyle,
+                                                  ),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .headlineSmall
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .headlineSmall
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 100.0,
+                                    child: VerticalDivider(
+                                      thickness: 2.0,
+                                      color: FlutterFlowTheme.of(context)
+                                          .secondaryText,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsetsDirectional.fromSTEB(
+                                            0.0, 0.0, 10.0, 0.0),
+                                        child: Icon(
+                                          Icons.local_gas_station,
+                                          color: FlutterFlowTheme.of(context)
+                                              .primaryText,
+                                          size: 30.0,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: CircularPercentIndicator(
+                                          percent: (FuelGroup.statusCall
+                                                  .gasTankAmount(
+                                                    cardStatusResponse.jsonBody,
+                                                  )!
+                                                  .firstOrNull!) /
+                                              100,
+                                          radius: 50.0,
+                                          lineWidth: 15.0,
+                                          animation: true,
+                                          animateFromLastPercent: true,
+                                          progressColor:
+                                              FlutterFlowTheme.of(context)
+                                                  .primaryText,
+                                          center: Text(
+                                            FuelGroup.statusCall
+                                                .gasTankAmount(
+                                                  cardStatusResponse.jsonBody,
+                                                )!
+                                                .firstOrNull!
+                                                .toString(),
+                                            textAlign: TextAlign.center,
+                                            style: FlutterFlowTheme.of(context)
+                                                .headlineSmall
+                                                .override(
+                                                  font: GoogleFonts.interTight(
+                                                    fontWeight:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .headlineSmall
+                                                            .fontWeight,
+                                                    fontStyle:
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .headlineSmall
+                                                            .fontStyle,
+                                                  ),
+                                                  letterSpacing: 0.0,
+                                                  fontWeight:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .headlineSmall
+                                                          .fontWeight,
+                                                  fontStyle:
+                                                      FlutterFlowTheme.of(
+                                                              context)
+                                                          .headlineSmall
+                                                          .fontStyle,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Card(
+                  ),
+                Padding(
+                  padding: EdgeInsets.all(24.0),
+                  child: FutureBuilder<ApiCallResponse>(
+                    future: TripGroup.tripRangeCall.call(
+                      startId: 0,
+                      endId: 6,
+                      includeData: false,
+                      url: FFAppState().ServelUrl,
+                    ),
+                    builder: (context, snapshot) {
+                      // Customize what your widget looks like when it's loading.
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: SizedBox(
+                            width: 50.0,
+                            height: 50.0,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                FlutterFlowTheme.of(context).primary,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      final cardTripRangeResponse = snapshot.data!;
+
+                      return Card(
                         clipBehavior: Clip.antiAliasWithSaveLayer,
                         color: FlutterFlowTheme.of(context).primaryBackground,
                         elevation: 0.0,
@@ -299,49 +333,78 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(16.0),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                padding: EdgeInsetsDirectional.fromSTEB(
                                     0.0, 0.0, 12.0, 0.0),
                                 child: Text(
                                   'Recent Activity',
                                   style: FlutterFlowTheme.of(context)
                                       .headlineSmall
                                       .override(
-                                        fontFamily: 'Ubuntu',
+                                        font: GoogleFonts.ubuntu(
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineSmall
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .headlineSmall
+                                                  .fontStyle,
+                                        ),
                                         color: FlutterFlowTheme.of(context)
                                             .primary,
                                         letterSpacing: 0.0,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey('Ubuntu'),
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .headlineSmall
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .headlineSmall
+                                            .fontStyle,
                                       ),
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                padding: EdgeInsetsDirectional.fromSTEB(
                                     0.0, 4.0, 12.0, 0.0),
                                 child: Text(
                                   'Recent completed trips.',
                                   style: FlutterFlowTheme.of(context)
                                       .labelMedium
                                       .override(
-                                        fontFamily: 'Ubuntu',
+                                        font: GoogleFonts.ubuntu(
+                                          fontWeight:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontWeight,
+                                          fontStyle:
+                                              FlutterFlowTheme.of(context)
+                                                  .labelMedium
+                                                  .fontStyle,
+                                        ),
                                         letterSpacing: 0.0,
-                                        useGoogleFonts: GoogleFonts.asMap()
-                                            .containsKey('Ubuntu'),
+                                        fontWeight: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontWeight,
+                                        fontStyle: FlutterFlowTheme.of(context)
+                                            .labelMedium
+                                            .fontStyle,
                                       ),
                                 ),
                               ),
                               Builder(
                                 builder: (context) {
-                                  final trip = homePageTripRangeResponse
-                                      .jsonBody
-                                      .toList()
-                                      .take(2)
+                                  final trip = (TripGroup.tripRangeCall
+                                              .trip(
+                                                cardTripRangeResponse.jsonBody,
+                                              )
+                                              ?.toList() ??
+                                          [])
+                                      .take(6)
                                       .toList();
                                   if (trip.isEmpty) {
                                     return Center(
@@ -352,8 +415,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                   }
 
                                   return ListView.separated(
-                                    key: const ValueKey('ListView_ckxl'),
-                                    padding: const EdgeInsets.fromLTRB(
+                                    padding: EdgeInsets.fromLTRB(
                                       0,
                                       16.0,
                                       0,
@@ -364,7 +426,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                     scrollDirection: Axis.vertical,
                                     itemCount: trip.length,
                                     separatorBuilder: (_, __) =>
-                                        const SizedBox(height: 8.0),
+                                        SizedBox(height: 8.0),
                                     itemBuilder: (context, tripIndex) {
                                       final tripItem = trip[tripIndex];
                                       return InkWell(
@@ -374,7 +436,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                         highlightColor: Colors.transparent,
                                         onTap: () async {
                                           context.pushNamed(
-                                            'Trip',
+                                            TripWidget.routeName,
                                             queryParameters: {
                                               'tripNum': serializeParam(
                                                 tripIndex,
@@ -383,7 +445,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                             }.withoutNulls,
                                             extra: <String, dynamic>{
                                               kTransitionInfoKey:
-                                                  const TransitionInfo(
+                                                  TransitionInfo(
                                                 hasTransition: true,
                                                 transitionType:
                                                     PageTransitionType
@@ -403,7 +465,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                 color:
                                                     FlutterFlowTheme.of(context)
                                                         .alternate,
-                                                offset: const Offset(
+                                                offset: Offset(
                                                   0.0,
                                                   1.0,
                                                 ),
@@ -414,7 +476,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                           ),
                                           child: Padding(
                                             padding:
-                                                const EdgeInsetsDirectional.fromSTEB(
+                                                EdgeInsetsDirectional.fromSTEB(
                                                     0.0, 4.0, 8.0, 8.0),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.max,
@@ -426,7 +488,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                 Expanded(
                                                   child: Padding(
                                                     padding:
-                                                        const EdgeInsetsDirectional
+                                                        EdgeInsetsDirectional
                                                             .fromSTEB(20.0, 0.0,
                                                                 0.0, 0.0),
                                                     child: Column(
@@ -441,27 +503,35 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                       children: [
                                                         Padding(
                                                           padding:
-                                                              const EdgeInsetsDirectional
+                                                              EdgeInsetsDirectional
                                                                   .fromSTEB(
                                                                       0.0,
                                                                       8.0,
                                                                       12.0,
                                                                       0.0),
                                                           child: Text(
-                                                            '${getJsonField(
-                                                              tripItem,
-                                                              r'''$['Trip']['DepartureTime']''',
-                                                            ).toString()}-${getJsonField(
-                                                              tripItem,
-                                                              r'''$['Trip']['ArrivalTime']''',
-                                                            ).toString()}',
+                                                            '${functions.formatTime((TripGroup.tripRangeCall.departureTime(
+                                                                  cardTripRangeResponse
+                                                                      .jsonBody,
+                                                                )!.elementAtOrNull(tripIndex))!)}-${functions.formatTime((TripGroup.tripRangeCall.arrivalTime(
+                                                                  cardTripRangeResponse
+                                                                      .jsonBody,
+                                                                )!.elementAtOrNull(tripIndex))!)}',
                                                             style: FlutterFlowTheme
                                                                     .of(context)
                                                                 .labelSmall
                                                                 .override(
-                                                                  fontFamily: FlutterFlowTheme.of(
-                                                                          context)
-                                                                      .labelSmallFamily,
+                                                                  font:
+                                                                      GoogleFonts
+                                                                          .inter(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelSmall
+                                                                        .fontStyle,
+                                                                  ),
                                                                   color: FlutterFlowTheme.of(
                                                                           context)
                                                                       .primaryText,
@@ -472,17 +542,16 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
-                                                                  useGoogleFonts: GoogleFonts
-                                                                          .asMap()
-                                                                      .containsKey(
-                                                                          FlutterFlowTheme.of(context)
-                                                                              .labelSmallFamily),
+                                                                  fontStyle: FlutterFlowTheme.of(
+                                                                          context)
+                                                                      .labelSmall
+                                                                      .fontStyle,
                                                                 ),
                                                           ),
                                                         ),
                                                         Padding(
                                                           padding:
-                                                              const EdgeInsetsDirectional
+                                                              EdgeInsetsDirectional
                                                                   .fromSTEB(
                                                                       0.0,
                                                                       2.0,
@@ -514,23 +583,31 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                         .knownPlace(
                                                                             FFAppState().Places.toList(),
                                                                             functions.parseAsLoc(
-                                                                                getJsonField(
-                                                                                  tripItem,
-                                                                                  r'''$['Trip']['DepartureLoc']['lat']''',
-                                                                                ),
-                                                                                getJsonField(
-                                                                                  tripItem,
-                                                                                  r'''$['Trip']['DepartureLoc']['lng']''',
-                                                                                )))
+                                                                                (TripGroup.tripRangeCall
+                                                                                    .arrivalLocLat(
+                                                                                      cardTripRangeResponse.jsonBody,
+                                                                                    )!
+                                                                                    .elementAtOrNull(tripIndex))!,
+                                                                                (TripGroup.tripRangeCall
+                                                                                    .arrivalLocLng(
+                                                                                      cardTripRangeResponse.jsonBody,
+                                                                                    )!
+                                                                                    .elementAtOrNull(tripIndex))!))
                                                                         ?.name,
-                                                                    'Isa\'s Home',
+                                                                    'Home',
                                                                   ),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .labelMedium
                                                                       .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).labelMediumFamily,
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .labelMedium
+                                                                              .fontStyle,
+                                                                        ),
                                                                         color: FlutterFlowTheme.of(context)
                                                                             .primaryText,
                                                                         fontSize:
@@ -539,8 +616,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                             0.0,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .labelMedium
+                                                                            .fontStyle,
                                                                       ),
                                                                 )
                                                               ],
@@ -548,24 +626,36 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                       .of(context)
                                                                   .labelMedium
                                                                   .override(
-                                                                    fontFamily:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .labelMediumFamily,
+                                                                    font: GoogleFonts
+                                                                        .inter(
+                                                                      fontWeight: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .labelMedium
+                                                                          .fontWeight,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .labelMedium
+                                                                          .fontStyle,
+                                                                    ),
                                                                     fontSize:
                                                                         12.0,
                                                                     letterSpacing:
                                                                         0.0,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                    fontWeight: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelMedium
+                                                                        .fontWeight,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelMedium
+                                                                        .fontStyle,
                                                                   ),
                                                             ),
                                                           ),
                                                         ),
                                                         Padding(
                                                           padding:
-                                                              const EdgeInsetsDirectional
+                                                              EdgeInsetsDirectional
                                                                   .fromSTEB(
                                                                       0.0,
                                                                       0.0,
@@ -590,16 +680,34 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                 ),
                                                                 TextSpan(
                                                                   text:
-                                                                      getJsonField(
-                                                                    tripItem,
-                                                                    r'''$['Trip']['Distance']''',
-                                                                  ).toString(),
+                                                                      formatNumber(
+                                                                    TripGroup
+                                                                        .tripRangeCall
+                                                                        .distance(
+                                                                          cardTripRangeResponse
+                                                                              .jsonBody,
+                                                                        )!
+                                                                        .elementAtOrNull(
+                                                                            tripIndex),
+                                                                    formatType:
+                                                                        FormatType
+                                                                            .decimal,
+                                                                    decimalType:
+                                                                        DecimalType
+                                                                            .automatic,
+                                                                  ),
                                                                   style: FlutterFlowTheme.of(
                                                                           context)
                                                                       .labelMedium
                                                                       .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).labelMediumFamily,
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .labelMedium
+                                                                              .fontStyle,
+                                                                        ),
                                                                         color: FlutterFlowTheme.of(context)
                                                                             .primaryText,
                                                                         fontSize:
@@ -608,8 +716,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                             0.0,
                                                                         fontWeight:
                                                                             FontWeight.bold,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .labelMedium
+                                                                            .fontStyle,
                                                                       ),
                                                                 ),
                                                                 TextSpan(
@@ -618,14 +727,25 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                           context)
                                                                       .labelMedium
                                                                       .override(
-                                                                        fontFamily:
-                                                                            FlutterFlowTheme.of(context).labelMediumFamily,
+                                                                        font: GoogleFonts
+                                                                            .inter(
+                                                                          fontWeight: FlutterFlowTheme.of(context)
+                                                                              .labelMedium
+                                                                              .fontWeight,
+                                                                          fontStyle: FlutterFlowTheme.of(context)
+                                                                              .labelMedium
+                                                                              .fontStyle,
+                                                                        ),
                                                                         color: FlutterFlowTheme.of(context)
                                                                             .primaryText,
                                                                         letterSpacing:
                                                                             0.0,
-                                                                        useGoogleFonts:
-                                                                            GoogleFonts.asMap().containsKey(FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                        fontWeight: FlutterFlowTheme.of(context)
+                                                                            .labelMedium
+                                                                            .fontWeight,
+                                                                        fontStyle: FlutterFlowTheme.of(context)
+                                                                            .labelMedium
+                                                                            .fontStyle,
                                                                       ),
                                                                 )
                                                               ],
@@ -633,17 +753,29 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                                       .of(context)
                                                                   .labelMedium
                                                                   .override(
-                                                                    fontFamily:
-                                                                        FlutterFlowTheme.of(context)
-                                                                            .labelMediumFamily,
+                                                                    font: GoogleFonts
+                                                                        .inter(
+                                                                      fontWeight: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .labelMedium
+                                                                          .fontWeight,
+                                                                      fontStyle: FlutterFlowTheme.of(
+                                                                              context)
+                                                                          .labelMedium
+                                                                          .fontStyle,
+                                                                    ),
                                                                     fontSize:
                                                                         12.0,
                                                                     letterSpacing:
                                                                         0.0,
-                                                                    useGoogleFonts: GoogleFonts
-                                                                            .asMap()
-                                                                        .containsKey(
-                                                                            FlutterFlowTheme.of(context).labelMediumFamily),
+                                                                    fontWeight: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelMedium
+                                                                        .fontWeight,
+                                                                    fontStyle: FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .labelMedium
+                                                                        .fontStyle,
                                                                   ),
                                                             ),
                                                           ),
@@ -653,7 +785,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                                                   ),
                                                 ),
                                                 Padding(
-                                                  padding: const EdgeInsetsDirectional
+                                                  padding: EdgeInsetsDirectional
                                                       .fromSTEB(
                                                           0.0, 0.0, 5.0, 0.0),
                                                   child: Icon(
@@ -676,15 +808,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                             ],
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

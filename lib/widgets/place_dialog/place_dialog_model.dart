@@ -10,7 +10,7 @@ class PlaceDialogModel extends FlutterFlowModel<PlaceDialogWidget> {
   TextEditingController? textController;
   String? Function(BuildContext, String?)? textControllerValidator;
   // State field(s) for PlacePicker widget.
-  FFPlace placePickerValue = const FFPlace();
+  FFPlace placePickerValue = FFPlace();
 
   @override
   void initState(BuildContext context) {}

@@ -50,6 +50,5 @@ Future<SubFuelStruct?> imgToData() async {
 
   return null; // Return null if numbers aren't found
 }
-
 // Set your action name, define your arguments and return parameter,
 // and then add the boilerplate code using the green button on the right!
