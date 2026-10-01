@@ -53,7 +53,8 @@
       --accent: #1E6FD9;
       --accent-soft: rgba(30, 111, 217, 0.12);
       --accent-text: #1553A8; /* accent darkened to 4.5:1 on the grey canvas */
-      --shot-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.45);
+      --shot-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.6);
+      --stage: #1F2430; /* dark backdrop so the app's grey screens stand out */
       color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
@@ -69,6 +70,7 @@
         --accent-soft: rgba(96, 165, 250, 0.14);
         --accent-text: #60A5FA;
         --shot-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+        --stage: #1C1F26;
         color-scheme: dark;
       }
     }
@@ -84,6 +86,7 @@
       --accent-soft: rgba(96, 165, 250, 0.14);
       --accent-text: #60A5FA;
       --shot-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+      --stage: #1C1F26;
       color-scheme: dark;
     }
 
@@ -155,8 +158,10 @@
     .btn-plain { background: var(--tile); color: var(--ink); border-color: var(--line); }
     .btn-plain:hover { border-color: var(--accent); }
     .hero-shot { margin-top: 48px; }
+    .hero-stage { background: var(--stage); border-radius: 24px; padding: clamp(16px, 4vw, 40px); }
     .hero-shot img { border-radius: 16px; box-shadow: var(--shot-shadow); width: 100%; }
     @media (max-width: 640px) { .hero-shot img { max-width: 340px; margin: 0 auto; border-radius: 24px; } .shot-note { text-align: center; } }
+    .hero-shot img, .feature-media img { outline: 1px solid rgba(255, 255, 255, 0.08); }
     .shot-note { margin-top: 12px; font-size: 13px; color: var(--ink-muted); }
 
     /* Sections */
@@ -187,7 +192,7 @@
     }
     .feature h3 { font-size: clamp(22px, 3vw, 26px); font-weight: 800; margin-bottom: 12px; }
     .feature p { color: var(--ink-muted); font-size: 17px; }
-    .feature-media { background: var(--card); border-radius: 24px; padding: 24px; display: grid; place-items: center; }
+    .feature-media { background: var(--stage); border-radius: 24px; padding: clamp(20px, 4vw, 40px); display: grid; place-items: center; }
     .feature-media img { border-radius: 16px; box-shadow: var(--shot-shadow); }
     .feature-media .phone { max-width: 300px; border-radius: 24px; }
     .also { margin-top: 64px; }
@@ -292,11 +297,13 @@
         </div>
       </div>
       <figure class="hero-shot">
+        <div class="hero-stage">
         <picture>
           <source media="(max-width: 640px)" srcset="assets/screens/hero-trip-phone.webp" width="393" height="710">
           <img src="assets/screens/hero-trip.webp" width="2160" height="1643" fetchpriority="high"
              alt="Trip page for a 37.4-mile drive from Zuma Beach to Home in a Ford Fusion Energi, showing what it cost, its efficiency against the car's typical, the route, and where the energy went.">
         </picture>
+        </div>
         <figcaption class="shot-note">One drive in a Ford Fusion Energi. Screens shown are from the current design.</figcaption>
       </figure>
     </div>
