@@ -237,8 +237,8 @@
         <button type="button" onclick="selectVehicle('fusion')" id="tab-fusion"
                 class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-accent text-left transition-theme shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-accent uppercase tracking-wider">PHEV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#1E6FD9]"></span>
+            <span class="tab-badge text-xs font-bold text-accent uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">PHEV</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#1E6FD9] dark:bg-[#60A5FA]"></span>
           </div>
           <div class="text-sm font-extrabold text-ink leading-tight">Ford Fusion Energi</div>
           <div class="text-xs text-ink-muted">Dual Energy Stores</div>
@@ -248,8 +248,8 @@
         <button type="button" onclick="selectVehicle('ex30')" id="tab-ex30"
                 class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider">EV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#0C9660]"></span>
+            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">EV</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#0C9660] dark:bg-[#34D399]"></span>
           </div>
           <div class="text-sm font-extrabold text-ink leading-tight">Volvo EX30</div>
           <div class="text-xs text-ink-muted">Full Battery SoC</div>
@@ -259,8 +259,8 @@
         <button type="button" onclick="selectVehicle('rav4')" id="tab-rav4"
                 class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider">HEV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>
+            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">HEV</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] dark:bg-[#FBBF24]"></span>
           </div>
           <div class="text-sm font-extrabold text-ink leading-tight">Toyota RAV4 Hybrid</div>
           <div class="text-xs text-ink-muted">Single Fuel + Regen</div>
@@ -270,7 +270,7 @@
         <button type="button" onclick="selectVehicle('xc90')" id="tab-xc90"
                 class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
           <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider">ICE / MHEV</span>
+            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">ICE / MHEV</span>
             <span class="w-2.5 h-2.5 rounded-full bg-[#374151] dark:bg-[#A5B1C2]"></span>
           </div>
           <div class="text-sm font-extrabold text-ink leading-tight">Volvo XC90 B6</div>
@@ -901,7 +901,7 @@
         desc: "Dual physical energy stores tracked simultaneously. Overnight home charging priced at utility rate; gasoline priced per fill-up.",
         image: "assets/vehicles/fusion.png",
         accent: "#1E6FD9",
-        accentDark: "#1E6FD9",
+        accentDark: "#60A5FA",
         odometer: "84,210 mi",
         efficiency: "4.82 mi/kWh · 36.1 mpg",
         cost: "9.7¢ / mi",
@@ -943,7 +943,7 @@
         desc: "100% fuel-free miles. Pure battery pack voltage and current measured from BECM without synthetic drag models.",
         image: "assets/vehicles/ex30.png",
         accent: "#0C9660",
-        accentDark: "#0C9660",
+        accentDark: "#34D399",
         odometer: "12,450 mi",
         efficiency: "4.05 mi/kWh",
         cost: "5.4¢ / mi",
@@ -972,7 +972,7 @@
         desc: "Single physical fuel tank with high-frequency regenerative braking telemetry captured from CAN bus.",
         image: "assets/vehicles/rav4.png",
         accent: "#D97706",
-        accentDark: "#D97706",
+        accentDark: "#FBBF24",
         odometer: "43,890 mi",
         efficiency: "50.5 mpg",
         cost: "7.2¢ / mi",
