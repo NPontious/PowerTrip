@@ -1,1265 +1,452 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PowerTrip — Automotive Telematics & Energy Lot Ledger</title>
-  <meta name="description" content="Privacy-first, self-hosted automotive telematics and trip intelligence. CAN-bus logging with WiCAN Pro, FIFO energy lot accounting, and owner-first DTC diagnostics.">
-
-  <!-- Typography: Plus Jakarta Sans (400, 500, 600, 700, 800) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PowerTrip</title>
+  <meta name="description" content="PowerTrip reads your car's own sensors and tells you what each drive cost, in gasoline and electricity, to the cent. Self-hosted. Nothing estimated.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS Configuration -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <script>
-    tailwind = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            accent: 'var(--color-accent)',
-            card: 'var(--color-card)',
-            canvas: 'var(--color-canvas)',
-            tile: 'var(--color-tile)',
-            track: 'var(--color-track)',
-          }
-        }
-      }
-    };
+    // Apply a saved theme before first paint so the page doesn't flash.
+    try {
+      var t = localStorage.getItem("powertrip_theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
   </script>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
+    /* Tokens from DESIGN.md §2. The site uses the Fusion's accent because
+       every screen shown is a Fusion screen. */
     :root {
-      --color-canvas: #D1D1D1;
-      --color-card: #E3E3E3;
-      --color-tile: #FFFFFF;
-      --color-ink: #0F172A;
-      --color-ink-muted: #4B5563;
-      --color-ink-faint: #6B7280;
-      --color-line: rgba(15, 23, 42, 0.10);
-      --color-track: #D9DCE1;
-      --color-accent: #1E6FD9;
-      --color-accent-text: #FFFFFF;
+      --canvas: #D1D1D1;
+      --card: #E3E3E3;
+      --tile: #FFFFFF;
+      --ink: #0F172A;
+      --ink-muted: #4B5563;
+      --ink-faint: #6B7280;
+      --line: rgba(15, 23, 42, 0.10);
+      --accent: #1E6FD9;
+      --accent-soft: rgba(30, 111, 217, 0.12);
+      --accent-text: #1553A8; /* accent darkened to 4.5:1 on the grey canvas */
+      --shot-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.45);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --canvas: #0F1115;
+        --card: #1C1F26;
+        --tile: #262A34;
+        --ink: #F8FAFC;
+        --ink-muted: #A0A6B2;
+        --ink-faint: #8B93A1;
+        --line: rgba(255, 255, 255, 0.08);
+        --accent: #60A5FA;
+        --accent-soft: rgba(96, 165, 250, 0.14);
+        --accent-text: #60A5FA;
+        --shot-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --canvas: #0F1115;
+      --card: #1C1F26;
+      --tile: #262A34;
+      --ink: #F8FAFC;
+      --ink-muted: #A0A6B2;
+      --ink-faint: #8B93A1;
+      --line: rgba(255, 255, 255, 0.08);
+      --accent: #60A5FA;
+      --accent-soft: rgba(96, 165, 250, 0.14);
+      --accent-text: #60A5FA;
+      --shot-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.8);
+      color-scheme: dark;
     }
 
-    html.dark {
-      --color-canvas: #0F1115;
-      --color-card: #1C1F26;
-      --color-tile: #262A34;
-      --color-ink: #F8FAFC;
-      --color-ink-muted: #A0A6B2;
-      --color-ink-faint: #8B93A1;
-      --color-line: rgba(255, 255, 255, 0.08);
-      --color-track: #181A20;
-      --color-accent: #1E6FD9;
-      --color-accent-text: #FFFFFF;
-    }
-
-    * {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      background-color: var(--color-canvas);
-      color: var(--color-ink);
-      min-width: 320px;
-      font-size: 14px;
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 500 16px/1.55 "Plus Jakarta Sans", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; height: auto; }
+    a { color: var(--accent-text); }
+    h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+    p { margin: 0; }
+    svg { flex: none; }
+
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    @media (min-width: 640px) { .wrap { padding: 0 24px; } }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in srgb, var(--canvas) 88%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar { display: flex; align-items: center; gap: 24px; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 18px; }
+    .mark { width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; display: grid; place-items: center; }
+    nav { display: none; gap: 24px; margin-left: auto; }
+    nav a { color: var(--ink-muted); text-decoration: none; font-size: 14px; font-weight: 600; }
+    nav a:hover { color: var(--ink); }
+    @media (min-width: 760px) { nav { display: flex; } }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: grid; place-items: center;
+      background: var(--tile); color: var(--ink);
+      border: 1px solid var(--line); cursor: pointer; text-decoration: none;
+    }
+    .icon-btn:hover { border-color: var(--accent); }
+    .actions { display: flex; gap: 8px; margin-left: auto; }
+    @media (min-width: 760px) { .actions { margin-left: 0; } }
+    .theme-dark-icon { display: none; }
+    :root[data-theme="dark"] .theme-dark-icon { display: block; }
+    :root[data-theme="dark"] .theme-light-icon { display: none; }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .theme-dark-icon { display: block; }
+      :root:not([data-theme="light"]) .theme-light-icon { display: none; }
     }
 
-    /* Strict Invariant: Minimum 12px font size */
-    .text-xs { font-size: 12px; line-height: 16px; }
-    .text-sm { font-size: 14px; line-height: 20px; }
-    .text-base { font-size: 16px; line-height: 24px; }
-    .text-lg { font-size: 18px; line-height: 28px; }
-    .text-xl { font-size: 20px; line-height: 28px; }
-    .text-2xl { font-size: 24px; line-height: 32px; }
-    .text-3xl { font-size: 30px; line-height: 36px; }
-    .text-4xl { font-size: 36px; line-height: 42px; }
-    .text-5xl { font-size: 48px; line-height: 54px; }
-
-    /* Custom tokens integration */
-    .bg-canvas { background-color: var(--color-canvas); }
-    .bg-card { background-color: var(--color-card); }
-    .bg-tile { background-color: var(--color-tile); }
-    .bg-track { background-color: var(--color-track); }
-    .bg-accent { background-color: var(--color-accent); }
-    .text-ink { color: var(--color-ink); }
-    .text-ink-muted { color: var(--color-ink-muted); }
-    .text-ink-faint { color: var(--color-ink-faint); }
-    .text-accent { color: var(--color-accent); }
-    .border-line { border-color: var(--color-line); }
-    .border-accent { border-color: var(--color-accent); }
-
-    /* Squircle cards and tiles */
-    .card-radius { border-radius: 24px; }
-    .tile-radius { border-radius: 14px; }
-
-    /* Smooth transitions */
-    .transition-theme {
-      transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                  border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                  color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                  transform 0.2s ease;
+    /* Hero */
+    .hero { display: grid; gap: 40px; align-items: center; padding-top: 48px; padding-bottom: 64px; }
+    @media (min-width: 900px) { .hero { grid-template-columns: 1.15fr 0.85fr; padding-top: 72px; padding-bottom: 88px; } }
+    .status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px; border-radius: 999px;
+      background: var(--tile); border: 1px solid var(--line);
+      font-size: 13px; font-weight: 600; color: var(--ink-muted);
     }
+    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .hero h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; margin: 20px 0 16px; }
+    .lede { font-size: 18px; color: var(--ink-muted); max-width: 34em; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 14px;
+      font-size: 15px; font-weight: 700; text-decoration: none;
+      border: 1px solid transparent;
+    }
+    .btn-primary { background: #1E6FD9; color: #fff; }
+    .btn-primary:hover { background: #185BB3; }
+    .btn-plain { background: var(--tile); color: var(--ink); border-color: var(--line); }
+    .btn-plain:hover { border-color: var(--accent); }
+    .hero-shot { justify-self: center; width: min(100%, 340px); }
 
-    /* Fixed Powertrain Bar widths */
-    .bar-full-width {
-      width: 295px;
-      max-width: 100%;
-    }
-    .bar-half-width {
-      width: 130px;
-      max-width: 100%;
-    }
+    .shot { border-radius: 28px; box-shadow: var(--shot-shadow); }
+    .shot-wide { border-radius: 16px; }
 
-    /* Mockup phone & desktop frames */
-    .phone-mockup-frame {
-      max-width: 393px;
-      border: 10px solid #1E222B;
-      border-radius: 46px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
-      background-color: #0F1115;
-    }
+    /* Sections */
+    section { padding: 64px 0; border-top: 1px solid var(--line); }
+    .eyebrow { font-size: 13px; font-weight: 700; color: var(--accent-text); letter-spacing: 0.04em; text-transform: uppercase; }
+    .section-head { max-width: 40em; margin-bottom: 32px; }
+    .section-head h2 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; margin: 8px 0 12px; }
+    .section-head p { color: var(--ink-muted); font-size: 17px; }
 
-    .desktop-mockup-frame {
-      max-width: 1080px;
-      border: 2px solid var(--color-line);
-      border-radius: 18px;
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
-      background-color: var(--color-card);
+    .card { background: var(--card); border-radius: 24px; padding: 24px; }
+    .tile { background: var(--tile); border-radius: 16px; padding: 20px; }
+    .grid-3 { display: grid; gap: 16px; }
+    @media (min-width: 760px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+    .grid-4 { display: grid; gap: 16px; }
+    @media (min-width: 640px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1000px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+    .point h3 { font-size: 18px; font-weight: 700; margin: 14px 0 8px; }
+    .point p { color: var(--ink-muted); font-size: 15px; }
+    .point-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+
+    /* Screens */
+    .screens-wide { margin-bottom: 32px; }
+    .screens-phones { display: grid; gap: 32px; max-width: 320px; margin: 0 auto; }
+    @media (min-width: 640px) { .screens-phones { grid-template-columns: repeat(3, 1fr); max-width: none; } }
+    figure { margin: 0; }
+    figure a { display: block; }
+    figcaption { margin-top: 14px; font-size: 14px; color: var(--ink-muted); }
+    figcaption strong { display: block; color: var(--ink); font-size: 15px; font-weight: 700; }
+    .phone-crop { aspect-ratio: 393 / 700; overflow: hidden; border-radius: 22px; box-shadow: var(--shot-shadow); }
+    .phone-crop img { width: 100%; }
+    .note { margin-top: 28px; font-size: 14px; color: var(--ink-muted); max-width: 48em; }
+
+    /* Cars */
+    .car h3 { font-size: 17px; font-weight: 700; }
+    .car .kind { font-size: 13px; font-weight: 600; color: var(--ink-faint); margin-bottom: 4px; }
+    .car p { margin-top: 10px; font-size: 15px; color: var(--ink-muted); }
+    .slots { margin-top: 24px; }
+    .slots h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .slots > p { color: var(--ink-muted); font-size: 15px; }
+    .slot-list { display: grid; gap: 12px; margin-top: 16px; padding: 0; list-style: none; }
+    @media (min-width: 760px) { .slot-list { grid-template-columns: repeat(4, 1fr); } }
+    .slot-list li { background: var(--tile); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--ink-muted); }
+    .slot-list strong { display: block; color: var(--ink); font-size: 15px; }
+
+    /* Steps */
+    .steps { counter-reset: step; display: grid; gap: 16px; padding: 0; margin: 0; list-style: none; }
+    @media (min-width: 760px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+    .steps li { counter-increment: step; }
+    .steps li::before {
+      content: counter(step);
+      display: grid; place-items: center;
+      width: 32px; height: 32px; border-radius: 10px;
+      background: var(--accent-soft); color: var(--accent);
+      font-weight: 800; font-size: 15px; margin-bottom: 14px;
     }
+    .steps h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .steps p { font-size: 15px; color: var(--ink-muted); }
+    .privacy { margin-top: 16px; display: flex; gap: 14px; align-items: flex-start; }
+    .privacy p { font-size: 15px; color: var(--ink-muted); }
+    .privacy strong { color: var(--ink); }
+
+    /* Spec */
+    .spec { display: grid; gap: 24px; align-items: center; }
+    @media (min-width: 760px) { .spec { grid-template-columns: 1fr auto; } }
+    .spec h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+    .spec p { color: var(--ink-muted); font-size: 15px; max-width: 40em; }
+    .spec .meta { margin-top: 10px; font-size: 13px; color: var(--ink-muted); }
+
+    footer { padding: 32px 0 48px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-muted); }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    footer a { color: var(--ink-muted); }
+
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
-<body class="min-h-screen transition-theme selection:bg-blue-600 selection:text-white">
+<body>
 
-  <!-- Navigation Header -->
-  <header class="sticky top-0 z-40 backdrop-blur-lg bg-card/85 border-b border-line transition-theme">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-      
-      <!-- Brand Wordmark & Version Badge -->
-      <a href="#" class="flex items-center space-x-3 group">
-        <div class="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-white shadow-md transition-transform group-hover:scale-105">
-          <!-- Vector telemetry icon -->
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <div class="flex items-center space-x-2">
-          <span class="text-xl font-extrabold tracking-tight text-ink">PowerTrip</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-track text-ink-muted">v1.0</span>
-        </div>
+  <header>
+    <div class="wrap bar">
+      <a class="brand" href="#">
+        <span class="mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </span>
+        PowerTrip
       </a>
-
-      <!-- Desktop Navigation Links -->
-      <nav class="hidden md:flex items-center space-x-7 text-sm font-semibold text-ink-muted">
-        <a href="#hero" class="hover:text-ink transition-colors">Overview</a>
-        <a href="#powertrains" class="hover:text-ink transition-colors">Powertrains</a>
-        <a href="#pillars" class="hover:text-ink transition-colors">Architecture</a>
-        <a href="#ingestion" class="hover:text-ink transition-colors">Hardware Sync</a>
-        <a href="#showcase" class="hover:text-ink transition-colors">UI Showcase</a>
-        <a href="#spec" class="hover:text-ink transition-colors">Specification</a>
+      <nav aria-label="Sections">
+        <a href="#screens">Screens</a>
+        <a href="#cars">Cars</a>
+        <a href="#how">How it works</a>
+        <a href="#spec">Spec</a>
       </nav>
-
-      <!-- Header Actions: GitHub & Theme Toggle -->
-      <div class="flex items-center space-x-3">
-        <!-- GitHub Link -->
-        <a href="https://github.com/NPontious/PowerTrip" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-tile text-ink text-xs sm:text-sm font-semibold border border-line shadow-sm hover:border-accent transition-theme">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-          </svg>
-          <span class="hidden sm:inline">GitHub</span>
+      <div class="actions">
+        <a class="icon-btn" href="https://github.com/NPontious/PowerTrip" aria-label="PowerTrip on GitHub">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
         </a>
-
-        <!-- Dark / Light Mode Switcher -->
-        <button id="themeToggleBtn" type="button" aria-label="Toggle color theme"
-                class="w-10 h-10 rounded-xl bg-tile text-ink flex items-center justify-center border border-line shadow-sm hover:border-accent transition-theme">
-          <!-- Light Mode Sun Icon -->
-          <svg id="sunIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <!-- Dark Mode Moon Icon -->
-          <svg id="moonIcon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
+        <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch light or dark theme">
+          <svg class="theme-light-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <svg class="theme-dark-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section id="hero" class="pt-12 pb-16 md:pt-18 md:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-    <div class="text-center max-w-4xl mx-auto mb-12">
-      <!-- Tag badge -->
-      <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-tile border border-line shadow-sm mb-6">
-        <span class="w-2 h-2 rounded-full bg-accent inline-block"></span>
-        <span class="text-xs font-bold uppercase tracking-wider text-ink-muted">CAN-Bus Direct Telematics &bull; Self-Hosted Privacy</span>
-      </div>
-
-      <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-ink tracking-tight mb-6 leading-tight">
-        Physical reality telematics.<br class="hidden sm:inline"> Zero modeled guesswork.
-      </h1>
-
-      <p class="text-base sm:text-lg md:text-xl text-ink-muted max-w-3xl mx-auto font-medium leading-relaxed mb-8">
-        PowerTrip connects directly to vehicle CAN-bus networks via WiCAN Pro hardware. Complete energy accounting, true dual-fuel PHEV ledger, and owner-first DTC diagnostics—hosted entirely on your private home server.
-      </p>
-
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="#showcase" class="px-6 py-3.5 rounded-xl bg-accent text-white font-bold text-sm shadow-lg hover:opacity-95 transition-theme flex items-center space-x-2">
-          <span>Explore Interactive UI Showcase</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-          </svg>
-        </a>
-        <a href="assets/spec/telematics_app_specification.pdf" target="_blank"
-           class="px-6 py-3.5 rounded-xl bg-tile text-ink font-bold text-sm border border-line shadow-sm hover:border-accent transition-theme flex items-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span>Read Architecture Spec (PDF)</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Interactive Vehicle Selector Tabs -->
-    <div id="powertrains" class="mt-12">
-      <div class="text-center mb-6">
-        <span class="text-xs font-bold uppercase tracking-wider text-ink-faint">Select Powertrain Architecture</span>
-      </div>
-
-      <!-- Tabs Row -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-8">
-        <!-- Ford Fusion Energi (PHEV) -->
-        <button type="button" onclick="selectVehicle('fusion')" id="tab-fusion"
-                class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-accent text-left transition-theme shadow-sm">
-          <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-accent uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">PHEV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#1E6FD9] dark:bg-[#60A5FA]"></span>
-          </div>
-          <div class="text-sm font-extrabold text-ink leading-tight">Ford Fusion Energi</div>
-          <div class="text-xs text-ink-muted">Dual Energy Stores</div>
-        </button>
-
-        <!-- Volvo EX30 (EV) -->
-        <button type="button" onclick="selectVehicle('ex30')" id="tab-ex30"
-                class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
-          <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">EV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#0C9660] dark:bg-[#34D399]"></span>
-          </div>
-          <div class="text-sm font-extrabold text-ink leading-tight">Volvo EX30</div>
-          <div class="text-xs text-ink-muted">Full Battery SoC</div>
-        </button>
-
-        <!-- Toyota RAV4 Hybrid (HEV) -->
-        <button type="button" onclick="selectVehicle('rav4')" id="tab-rav4"
-                class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
-          <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">HEV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] dark:bg-[#FBBF24]"></span>
-          </div>
-          <div class="text-sm font-extrabold text-ink leading-tight">Toyota RAV4 Hybrid</div>
-          <div class="text-xs text-ink-muted">Single Fuel + Regen</div>
-        </button>
-
-        <!-- Volvo XC90 B6 (Gasoline) -->
-        <button type="button" onclick="selectVehicle('xc90')" id="tab-xc90"
-                class="vehicle-tab px-4 py-3.5 rounded-2xl bg-card border-2 border-transparent hover:border-line text-left transition-theme shadow-sm">
-          <div class="flex items-center justify-between mb-1">
-            <span class="tab-badge text-xs font-bold text-ink-faint uppercase tracking-wider px-2 py-0.5 rounded-md bg-tile border border-line">ICE / MHEV</span>
-            <span class="w-2.5 h-2.5 rounded-full bg-[#374151] dark:bg-[#A5B1C2]"></span>
-          </div>
-          <div class="text-sm font-extrabold text-ink leading-tight">Volvo XC90 B6</div>
-          <div class="text-xs text-ink-muted">Full Fuel Tank</div>
-        </button>
-      </div>
-
-      <!-- Dynamic Vehicle Presentation Card -->
-      <div class="bg-card card-radius p-6 sm:p-8 border border-line shadow-lg transition-theme">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          <!-- Left: Vehicle Photo & Telemetry Overview -->
-          <div class="lg:col-span-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <div class="relative w-full h-56 sm:h-64 flex items-center justify-center p-4 bg-tile tile-radius border border-line overflow-hidden mb-6">
-              <img id="vehicleHeroImg" src="assets/vehicles/fusion.png" alt="Selected Vehicle"
-                   class="max-h-full max-w-full object-contain filter drop-shadow-md transition-all duration-300">
-            </div>
-
-            <div class="w-full">
-              <div class="flex items-center justify-between mb-2">
-                <h3 id="vehicleHeroName" class="text-2xl font-extrabold text-ink">Ford Fusion Energi</h3>
-                <span id="vehiclePowertrainBadge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-track text-ink">Plug-in Hybrid (PHEV)</span>
-              </div>
-              <p id="vehicleHeroDesc" class="text-sm text-ink-muted mb-4 font-medium">
-                Dual physical energy stores tracked simultaneously. Overnight home charging priced at utility rate; gasoline priced per fill-up.
-              </p>
-
-              <!-- Telemetry Stats Strip -->
-              <div class="grid grid-cols-3 gap-3 w-full">
-                <div class="p-3 bg-tile tile-radius border border-line">
-                  <div class="text-xs font-semibold text-ink-faint">Odometer</div>
-                  <div id="statOdometer" class="text-base sm:text-lg font-bold text-ink">84,210 mi</div>
-                </div>
-                <div class="p-3 bg-tile tile-radius border border-line">
-                  <div class="text-xs font-semibold text-ink-faint">Typical Efficiency</div>
-                  <div id="statEfficiency" class="text-base sm:text-lg font-bold text-ink">4.82 mi/kWh</div>
-                </div>
-                <div class="p-3 bg-tile tile-radius border border-line">
-                  <div class="text-xs font-semibold text-ink-faint">30-Day Cost</div>
-                  <div id="statCost" class="text-base sm:text-lg font-bold text-accent">9.7&cent; / mi</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Powertrain Invariant Card Component -->
-          <div class="lg:col-span-6 flex flex-col justify-center">
-            <div class="bg-tile tile-radius p-6 border border-line shadow-sm">
-              <div class="flex items-center justify-between pb-4 border-b border-line mb-6">
-                <div>
-                  <span class="text-xs font-bold uppercase tracking-wider text-ink-faint">Automotive UI Invariant</span>
-                  <h4 class="text-lg font-extrabold text-ink">Powertrain Telematics Card</h4>
-                </div>
-                <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-track text-xs font-bold text-ink-muted">
-                  <svg class="w-3.5 h-3.5 text-accent" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>Strict Spec</span>
-                </div>
-              </div>
-
-              <!-- Dynamic Powertrain Card Rendering Container -->
-              <div id="powertrainCardContainer" class="space-y-6">
-                <!-- Injected via JavaScript -->
-              </div>
-
-              <!-- Design Rule Rationale Callout -->
-              <div id="powertrainRuleCallout" class="mt-6 p-4 rounded-xl bg-canvas text-ink-muted text-xs leading-relaxed border border-line">
-                <!-- Injected via JavaScript -->
-              </div>
-
-            </div>
-          </div>
-
+  <main>
+    <div class="wrap hero">
+      <div>
+        <span class="status">In development &middot; US only &middot; Android and web</span>
+        <h1>What did that drive actually cost?</h1>
+        <p class="lede">
+          PowerTrip reads your car's own sensors and tells you what each drive cost,
+          in gasoline and electricity, to the cent. Every number is measured by the car
+          or worked out from your receipts. Nothing is modeled or estimated.
+        </p>
+        <div class="buttons">
+          <a class="btn btn-primary" href="#screens">
+            See the screens
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m0 0l-6-6m6 6l6-6"/></svg>
+          </a>
+          <a class="btn btn-plain" href="assets/spec/telematics_app_specification.pdf">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            Read the spec (PDF)
+          </a>
         </div>
       </div>
+      <img class="hero-shot shot" src="assets/screens/phone-home.png" width="393" height="995"
+           alt="PowerTrip home screen for a Ford Fusion Energi: efficiency against your typical, a detected fill-up waiting for its receipt, battery and fuel levels, and $8.27 spent over the last 30 days.">
     </div>
-  </section>
 
-  <!-- Core Architectural Pillars -->
-  <section id="pillars" class="py-16 bg-card/50 border-y border-line transition-theme">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-14">
-        <span class="text-xs font-bold uppercase tracking-wider text-accent">Core Architectural Principles</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mt-2 mb-4">
-          Engineered for Physical Reality
-        </h2>
-        <p class="text-base text-ink-muted">
-          Commercial OBD apps and OEM cloud subscriptions fail vehicle owners with synthetic estimates, cloud lock-in, and alarmist fault codes. PowerTrip replaces them with physics and math.
-        </p>
+    <section>
+      <div class="wrap">
+        <div class="grid-3">
+          <div class="tile point">
+            <div class="point-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <h3>Only what was measured</h3>
+            <p>Battery power, fuel flow, speed and levels come straight from the car. No "saved vs. a gas car", no air-drag guesses, no expected MPGe.</p>
+          </div>
+          <div class="tile point">
+            <div class="point-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            </div>
+            <h3>Costs from your receipts</h3>
+            <p>Each fill-up and charge is priced from what you paid, and used oldest first. A free charge costs exactly $0, and drive totals add up to the cent.</p>
+          </div>
+          <div class="tile point">
+            <div class="point-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
+            </div>
+            <h3>Compared with your typical</h3>
+            <p>A drive is judged against the median of your car's other drives, not against a sticker number. No scores, no scolding.</p>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        <!-- Pillar 1: Energy Lot Ledger -->
-        <div class="bg-tile tile-radius p-7 border border-line shadow-sm flex flex-col justify-between hover:border-accent transition-theme">
+    <section id="screens">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Screens</span>
+          <h2>One drive, start to finish</h2>
+          <p>A 37-mile drive in a Ford Fusion Energi: what it cost, how much was electric, and where the energy went.</p>
+        </div>
+
+        <figure class="screens-wide">
+          <a href="assets/screens/web-trip.png">
+            <img class="shot shot-wide" src="assets/screens/web-trip.png" width="1440" height="1250" loading="lazy"
+                 alt="Web trip page for Zuma Beach to Home: this drive's cost per mile, efficiency and electric share against the car's other drives, the route split into electric and engine miles, and where the energy went.">
+          </a>
+          <figcaption><strong>Trip page, web</strong>How this drive compares with your others, the route split by electric and engine miles, and what each energy source cost.</figcaption>
+        </figure>
+
+        <div class="screens-phones">
+          <figure>
+            <a href="assets/screens/phone-spending.png" class="phone-crop">
+              <img src="assets/screens/phone-spending.png" width="393" height="1340" loading="lazy"
+                   alt="Spending screen: $8.27 over 30 days split into electricity and gasoline, cost per mile by week, a calendar of spending by day, and recent fill-ups and charges.">
+            </a>
+            <figcaption><strong>Spending</strong>Every fill-up and charge, and what you paid per mile each week.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/screens/phone-fillup.png" class="phone-crop">
+              <img src="assets/screens/phone-fillup.png" width="393" height="852" loading="lazy"
+                   alt="Fill-up sheet: the car detected 9.6 gallons added while parked and asks for the total from the receipt.">
+            </a>
+            <figcaption><strong>Fill-up details</strong>The car notices the tank rose. You add the total from the receipt.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/screens/phone-car.png" class="phone-crop">
+              <img src="assets/screens/phone-car.png" width="393" height="1444" loading="lazy"
+                   alt="Car page: efficiency at steady speeds, energy used and returned on every drive, and the same route compared drive by drive.">
+            </a>
+            <figcaption><strong>Car page</strong>Efficiency by speed and the same route compared over time.</figcaption>
+          </figure>
+        </div>
+
+        <p class="note">These are design boards from Penpot, not the finished apps. Some labels on them are older than the current vocabulary in the spec.</p>
+      </div>
+    </section>
+
+    <section id="cars">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Cars</span>
+          <h2>Electric, plug-in, hybrid or gas</h2>
+          <p>The same words mean the same thing on every car. A car only adds a line when it has a second energy source.</p>
+        </div>
+        <div class="grid-4">
+          <div class="tile car">
+            <div class="kind">Electric</div>
+            <h3>Volvo EX30</h3>
+            <p>Efficiency in mi/kWh. Every mile is a fuel-free mile.</p>
+          </div>
+          <div class="tile car">
+            <div class="kind">Plug-in hybrid</div>
+            <h3>Ford Fusion Energi</h3>
+            <p>mi/kWh and mpg side by side, each priced from its own charges and fill-ups.</p>
+          </div>
+          <div class="tile car">
+            <div class="kind">Hybrid</div>
+            <h3>Toyota RAV4 Hybrid</h3>
+            <p>mpg, plus the miles it moved with no fuel burning and the energy regen put back.</p>
+          </div>
+          <div class="tile car">
+            <div class="kind">Gas</div>
+            <h3>Volvo XC90 B6</h3>
+            <p>mpg. Coasting with the fuel cut off still counts as fuel-free.</p>
+          </div>
+        </div>
+
+        <div class="card slots">
+          <h3>Four numbers on every trip</h3>
+          <p>In the same order on every car. When one doesn't apply, the screen says so instead of hiding it.</p>
+          <ul class="slot-list">
+            <li><strong>Cost per mile</strong>From your receipts</li>
+            <li><strong>Efficiency</strong>mi/kWh, mpg, or both</li>
+            <li><strong>Fuel-free</strong>Share of moving miles with no fuel burning</li>
+            <li><strong>Regen</strong>Share of the battery's output put back</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">How it works</span>
+          <h2>No phone in the loop</h2>
+          <p>A small adapter in the car's OBD port does the logging, and your own server does the math.</p>
+        </div>
+        <ol class="steps">
+          <li class="tile">
+            <h3>The adapter logs while you drive</h3>
+            <p>A WiCAN Pro in the OBD-II port records the car's signals to its own memory. It needs no phone and no cell plan, and sleeps when the car is off.</p>
+          </li>
+          <li class="tile">
+            <h3>It syncs when you get home</h3>
+            <p>Parked on your Wi-Fi, it uploads the drive to your home server in a few seconds.</p>
+          </li>
+          <li class="tile">
+            <h3>Your server prices the drive</h3>
+            <p>The server works out energy and cost per drive. The Android app and the web page only show what it calculated.</p>
+          </li>
+        </ol>
+        <div class="card privacy">
+          <div class="point-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <p><strong>Your data stays on your server.</strong> There's no PowerTrip cloud, and the app never asks for your phone's location. Position comes only from the car or the adapter.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="spec">
+      <div class="wrap">
+        <div class="card spec">
           <div>
-            <div class="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-6">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-ink mb-3">Energy Lot Ledger</h3>
-            <p class="text-sm text-ink-muted leading-relaxed mb-4">
-              Discrete First-In First-Out (FIFO) fuel and electricity accounting. Tracks overnight home charging at your utility rate (<span class="font-semibold text-ink">$0.220 / kWh</span>) and gasoline per fill-up receipt. Solves PHEV dual-fuel splitting without synthetic blends.
-            </p>
+            <h2>The full specification</h2>
+            <p>Signals read from each car, how the cost ledger works, the adapter's logging and sync, and the design rules for every screen.</p>
+            <p class="meta">PDF &middot; 20 pages &middot; 917 KB</p>
           </div>
-          <div class="pt-4 border-t border-line text-xs font-semibold text-ink-faint flex items-center justify-between">
-            <span>Pending receipt reconciliation</span>
-            <span class="text-accent font-bold">Automatic Prompts</span>
-          </div>
-        </div>
-
-        <!-- Pillar 2: Only What Was Measured -->
-        <div class="bg-tile tile-radius p-7 border border-line shadow-sm flex flex-col justify-between hover:border-accent transition-theme">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-6">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-ink mb-3">Only What Was Measured</h3>
-            <p class="text-sm text-ink-muted leading-relaxed mb-4">
-              Every value on screen is read from the vehicle CAN-bus (battery pack current, mass airflow, fuel flow, vehicle speed) or follows by simple arithmetic. No modeled aerodynamic drag, no expected MPGe, and no theoretical "saved vs. gas car" claims.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-line text-xs font-semibold text-ink-faint flex items-center justify-between">
-            <span>EPA road-load verification</span>
-            <span class="text-accent font-bold">Zero Synthetic Drag</span>
-          </div>
-        </div>
-
-        <!-- Pillar 3: Owner-First DTC Diagnostics -->
-        <div class="bg-tile tile-radius p-7 border border-line shadow-sm flex flex-col justify-between hover:border-accent transition-theme">
-          <div>
-            <div class="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-6">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-ink mb-3">Owner-First DTC Diagnostics</h3>
-            <p class="text-sm text-ink-muted leading-relaxed mb-4">
-              Translates raw Diagnostic Trouble Codes into plain-English fault descriptions and actionable safe-to-drive guidance. Codes are linked to the exact trip and engine conditions when triggered. Zero premature code clearing protects emissions readiness.
-            </p>
-          </div>
-          <div class="pt-4 border-t border-line text-xs font-semibold text-ink-faint flex items-center justify-between">
-            <span>Non-alarming severity rank</span>
-            <span class="text-accent font-bold">Safe-to-Drive Status</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Hardware & Data Ingestion Flow -->
-  <section id="ingestion" class="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-14">
-      <span class="text-xs font-bold uppercase tracking-wider text-accent">Autonomous Telematics Pipeline</span>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mt-2 mb-4">
-        WiCAN Pro ESP32-S3 Hardware Ingestion
-      </h2>
-      <p class="text-base text-ink-muted">
-        Completely phone-independent. The vehicle logs autonomously while driving and automatically syncs encrypted records to your home server when parked in your garage.
-      </p>
-    </div>
-
-    <!-- 5-Step Pipeline Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 relative">
-      
-      <!-- Step 1 -->
-      <div class="bg-card tile-radius p-5 border border-line flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-extrabold text-accent">01</span>
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tile text-ink-muted">&gt; 13.1V</span>
-          </div>
-          <h4 class="text-base font-bold text-ink mb-2">Ignition ON</h4>
-          <p class="text-xs text-ink-muted leading-relaxed">
-            WiCAN wakes immediately upon CAN-bus activity or charging bus voltage. Initializes SPI Flash circular buffer.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-line text-xs text-ink-faint">
-          Draws ~120mA
+          <a class="btn btn-primary" href="assets/spec/telematics_app_specification.pdf" download>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Download the spec
+          </a>
         </div>
       </div>
+    </section>
+  </main>
 
-      <!-- Step 2 -->
-      <div class="bg-card tile-radius p-5 border border-line flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-extrabold text-accent">02</span>
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tile text-ink-muted">Offline</span>
-          </div>
-          <h4 class="text-base font-bold text-ink mb-2">Autonomous Logging</h4>
-          <p class="text-xs text-ink-muted leading-relaxed">
-            Logs vehicle profile signals at 10Hz: Speed, Odometer, SoC%, Fuel Rate, and DTCs. Zero cellular plan required.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-line text-xs text-ink-faint">
-          100% Offline
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="bg-card tile-radius p-5 border border-line flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-extrabold text-accent">03</span>
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tile text-ink-muted">Deep Sleep</span>
-          </div>
-          <h4 class="text-base font-bold text-ink mb-2">Ignition OFF</h4>
-          <p class="text-xs text-ink-muted leading-relaxed">
-            Detects CAN bus silence. Closes trip record safely and enters ultra-low power standby.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-line text-xs text-ink-faint">
-          &lt; 1mA draw
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="bg-card tile-radius p-5 border border-line flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-extrabold text-accent">04</span>
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tile text-ink-muted">Garage Wi-Fi</span>
-          </div>
-          <h4 class="text-base font-bold text-ink mb-2">Batch Sync</h4>
-          <p class="text-xs text-ink-muted leading-relaxed">
-            Wakes Wi-Fi on home garage network. Securely uploads encrypted CAN logs in a 10–30s burst via local HTTP/MQTT.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-line text-xs text-ink-faint">
-          10–30s fast sync
-        </div>
-      </div>
-
-      <!-- Step 5 -->
-      <div class="bg-card tile-radius p-5 border border-line flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-extrabold text-accent">05</span>
-            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-tile text-ink-muted">Docker Hub</span>
-          </div>
-          <h4 class="text-base font-bold text-ink mb-2">Home Server Hub</h4>
-          <p class="text-xs text-ink-muted leading-relaxed">
-            Decodes signals using vehicle profiles, updates the Energy Lot Ledger, and verifies DTC status.
-          </p>
-        </div>
-        <div class="mt-4 pt-3 border-t border-line text-xs text-ink-faint">
-          Local SQLite / Postgres
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Interactive UI Showcase -->
-  <section id="showcase" class="py-16 md:py-24 bg-card/40 border-y border-line transition-theme">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="text-center max-w-3xl mx-auto mb-10">
-        <span class="text-xs font-bold uppercase tracking-wider text-accent">Interactive Prototype</span>
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mt-2 mb-4">
-          Penpot UI Screen Showcase
-        </h2>
-        <p class="text-base text-ink-muted">
-          Experience the actual production Penpot screens across Mobile and Web Desktop form factors.
-        </p>
-      </div>
-
-      <!-- Showcase Controls: Viewport Mode & Screen Tabs -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-4xl mx-auto mb-8">
-        
-        <!-- Viewport Mode Switcher (Mobile vs Web Desktop) -->
-        <div class="inline-flex p-1 rounded-2xl bg-card border border-line shadow-sm">
-          <button type="button" onclick="setViewMode('mobile')" id="btn-mode-mobile"
-                  class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-tile text-ink shadow-sm transition-theme flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span>Mobile (393px)</span>
-          </button>
-          <button type="button" onclick="setViewMode('desktop')" id="btn-mode-desktop"
-                  class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-ink-muted hover:text-ink transition-theme flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>Web Desktop (1440px)</span>
-          </button>
-        </div>
-
-        <!-- Screen Selector Tabs -->
-        <div class="flex flex-wrap items-center justify-center gap-1.5 p-1 rounded-2xl bg-card border border-line shadow-sm">
-          <button type="button" onclick="selectScreen('home')" id="screen-btn-home"
-                  class="screen-tab px-3 py-1.5 rounded-xl text-xs font-bold bg-tile text-accent shadow-sm transition-theme">
-            Cockpit Home
-          </button>
-          <button type="button" onclick="selectScreen('trip')" id="screen-btn-trip"
-                  class="screen-tab px-3 py-1.5 rounded-xl text-xs font-bold text-ink-muted hover:text-ink transition-theme">
-            Trip Summary
-          </button>
-          <button type="button" onclick="selectScreen('analysis')" id="screen-btn-analysis"
-                  class="screen-tab px-3 py-1.5 rounded-xl text-xs font-bold text-ink-muted hover:text-ink transition-theme">
-            Deep Analysis
-          </button>
-          <button type="button" onclick="selectScreen('spending')" id="screen-btn-spending"
-                  class="screen-tab px-3 py-1.5 rounded-xl text-xs font-bold text-ink-muted hover:text-ink transition-theme">
-            Spending
-          </button>
-          <button type="button" onclick="selectScreen('garage')" id="screen-btn-garage"
-                  class="screen-tab px-3 py-1.5 rounded-xl text-xs font-bold text-ink-muted hover:text-ink transition-theme">
-            Garage &amp; DTC
-          </button>
-        </div>
-
-      </div>
-
-      <!-- Mockup Frame Container -->
-      <div class="flex justify-center items-center py-4">
-        
-        <!-- Frame Wrapper -->
-        <div id="mockupWrapper" class="phone-mockup-frame transition-all duration-300 overflow-hidden relative group cursor-pointer"
-             onclick="openLightbox()">
-          
-          <!-- Mockup Top Bar (for Desktop mode) -->
-          <div id="desktopFrameHeader" class="hidden px-4 py-2.5 bg-tile border-b border-line flex items-center justify-between">
-            <div class="flex items-center space-x-2">
-              <span class="w-3 h-3 rounded-full bg-[#EF4444] inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-[#F59E0B] inline-block"></span>
-              <span class="w-3 h-3 rounded-full bg-[#10B981] inline-block"></span>
-            </div>
-            <div class="text-xs text-ink-faint font-mono bg-canvas px-4 py-1 rounded-md max-w-sm truncate border border-line">
-              powertrip.local/telematics/cockpit
-            </div>
-            <div class="w-12"></div>
-          </div>
-
-          <!-- Screen Image Container -->
-          <div class="relative bg-black flex items-center justify-center overflow-hidden">
-            <img id="activeShowcaseImg" src="assets/screens/mobile-home-fusion.png" alt="PowerTrip UI Screen"
-                 class="w-full h-auto object-contain transition-transform duration-300 group-hover:scale-[1.01]">
-
-            <!-- Hover Lightbox Hint Overlay -->
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <div class="px-4 py-2 rounded-xl bg-card text-ink text-xs font-bold shadow-lg flex items-center space-x-2">
-                <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                </svg>
-                <span>Click to Inspect High-Res</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Active Screen Explainer Card -->
-      <div class="max-w-2xl mx-auto mt-8 p-5 rounded-2xl bg-card border border-line text-center shadow-sm">
-        <h4 id="screenExplainerTitle" class="text-base font-bold text-ink mb-1">Cockpit Home Screen</h4>
-        <p id="screenExplainerDesc" class="text-xs sm:text-sm text-ink-muted leading-relaxed font-medium">
-          Hero card with real-time fuel and battery stores, rolling 30-day energy expenditure, and pending refill prompts.
-        </p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Telematics Vocabulary & Invariants -->
-  <section class="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-3xl mx-auto mb-14">
-      <span class="text-xs font-bold uppercase tracking-wider text-accent">Rigorous Standard</span>
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-ink tracking-tight mt-2 mb-4">
-        Telematics Vocabulary &amp; Invariants
-      </h2>
-      <p class="text-base text-ink-muted">
-        Standardized terminology: each measurement has exactly one meaning across EV, PHEV, HEV, and Gas vehicles.
-      </p>
-    </div>
-
-    <!-- 5 Vocabulary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-12">
-      
-      <!-- Fuel-free -->
-      <div class="p-6 bg-card tile-radius border border-line shadow-sm">
-        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">Invariant Metric</div>
-        <h4 class="text-lg font-extrabold text-ink mb-2">Fuel-free</h4>
-        <p class="text-xs text-ink-muted leading-relaxed mb-3">
-          Moving with no fuel burning (speed &gt; 0.5 mph and fuel flow &le; 0.05 gal/h). True across EV (100%), PHEV (electric miles), HEV (EV glide), and Gas (coasting fuel cut).
-        </p>
-        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-tile text-ink-faint border border-line">
-          Replaces &ldquo;EV Mode&rdquo;
-        </span>
-      </div>
-
-      <!-- Regen -->
-      <div class="p-6 bg-card tile-radius border border-line shadow-sm">
-        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">Kinetic Recovery</div>
-        <h4 class="text-lg font-extrabold text-ink mb-2">Regen</h4>
-        <p class="text-xs text-ink-muted leading-relaxed mb-3">
-          High-voltage battery charging while no fuel burns (battery power &lt; 0 with fuel flow &le; 0.05 gal/h). Expressed consistently in Wh per mile across all electrified cars.
-        </p>
-        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-tile text-ink-faint border border-line">
-          In Wh / mi (not %)
-        </span>
-      </div>
-
-      <!-- Stopped -->
-      <div class="p-6 bg-card tile-radius border border-line shadow-sm">
-        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">Idle &amp; Auxiliary</div>
-        <h4 class="text-lg font-extrabold text-ink mb-2">Stopped</h4>
-        <p class="text-xs text-ink-muted leading-relaxed mb-3">
-          Vehicle speed below 0.5 mph. Energy consumed while stopped (HVAC heating/cooling, electronics, engine idle) is isolated so moving efficiency remains unskewed.
-        </p>
-        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-tile text-ink-faint border border-line">
-          Speed &lt; 0.5 mph
-        </span>
-      </div>
-
-      <!-- Energy Lot Ledger -->
-      <div class="p-6 bg-card tile-radius border border-line shadow-sm">
-        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">Cost Model</div>
-        <h4 class="text-lg font-extrabold text-ink mb-2">Energy Lot Ledger</h4>
-        <p class="text-xs text-ink-muted leading-relaxed mb-3">
-          Discrete FIFO queue tracking exact purchase costs of electricity and gasoline batches. Prevents artificial averaging across home charging and public fast-charging.
-        </p>
-        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-tile text-ink-faint border border-line">
-          Exact FIFO Batches
-        </span>
-      </div>
-
-      <!-- your typical -->
-      <div class="p-6 bg-card tile-radius border border-line shadow-sm">
-        <div class="text-xs font-bold text-accent uppercase tracking-wider mb-2">Baseline Comparison</div>
-        <h4 class="text-lg font-extrabold text-ink mb-2">your typical</h4>
-        <p class="text-xs text-ink-muted leading-relaxed mb-3">
-          Median benchmark derived solely from the vehicle&rsquo;s own historical drives. Never judges or scolds the driver—presents measured facts relative to your typical baseline.
-        </p>
-        <span class="inline-block px-2.5 py-1 rounded-md text-xs font-semibold bg-tile text-ink-faint border border-line">
-          Personal Median
-        </span>
-      </div>
-
-    </div>
-
-    <!-- Powertrain Rules Matrix -->
-    <div class="bg-card card-radius p-6 sm:p-8 border border-line shadow-sm">
-      <h4 class="text-xl font-extrabold text-ink mb-6">Automotive UI Powertrain Consistency Matrix</h4>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <div class="p-4 rounded-xl bg-tile border border-line">
-          <div class="text-xs font-bold text-accent uppercase mb-1">EV Powertrain</div>
-          <div class="text-sm font-bold text-ink mb-2">Volvo EX30</div>
-          <div class="text-xs text-ink-muted mb-3">
-            Full-width Battery SoC card (<span class="font-semibold text-ink">82% &bull; 390 km</span>) with full-width progress bar (<span class="font-semibold text-ink">295px</span>).
-          </div>
-          <div class="w-full bg-track h-2 rounded-full overflow-hidden">
-            <div class="bg-[#0C9660] h-full w-[82%]"></div>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-tile border border-line">
-          <div class="text-xs font-bold text-accent uppercase mb-1">PHEV Powertrain</div>
-          <div class="text-sm font-bold text-ink mb-2">Ford Fusion Energi</div>
-          <div class="text-xs text-ink-muted mb-3">
-            Dual sub-cards (Electric Battery % + Gas Tank %) with side-by-side half-width bars (<span class="font-semibold text-ink">130px</span> each).
-          </div>
-          <div class="flex gap-2">
-            <div class="w-1/2 bg-track h-2 rounded-full overflow-hidden">
-              <div class="bg-[#1E6FD9] h-full w-[85%]"></div>
-            </div>
-            <div class="w-1/2 bg-track h-2 rounded-full overflow-hidden">
-              <div class="bg-[#374151] h-full w-[92%]"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-tile border border-line">
-          <div class="text-xs font-bold text-accent uppercase mb-1">HEV Powertrain</div>
-          <div class="text-sm font-bold text-ink mb-2">Toyota RAV4 Hybrid</div>
-          <div class="text-xs text-ink-muted mb-3">
-            Full-width Fuel Tank card (<span class="font-semibold text-ink">76% &bull; 680 km</span>) with full-width progress bar (<span class="font-semibold text-ink">295px</span>). EV Drive Share % &amp; Regen placed on Trip Summary.
-          </div>
-          <div class="w-full bg-track h-2 rounded-full overflow-hidden">
-            <div class="bg-[#D97706] h-full w-[76%]"></div>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-tile border border-line">
-          <div class="text-xs font-bold text-accent uppercase mb-1">Gas / ICE Powertrain</div>
-          <div class="text-sm font-bold text-ink mb-2">Volvo XC90 B6</div>
-          <div class="text-xs text-ink-muted mb-3">
-            Full-width Fuel Tank card (<span class="font-semibold text-ink">76% &bull; 580 km</span>) with full-width progress bar (<span class="font-semibold text-ink">295px</span>). Single energy store.
-          </div>
-          <div class="w-full bg-track h-2 rounded-full overflow-hidden">
-            <div class="bg-[#374151] dark:bg-[#A5B1C2] h-full w-[76%]"></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- Download Specification & Resources -->
-  <section id="spec" class="py-16 bg-card/60 border-t border-line transition-theme">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      
-      <div class="bg-tile card-radius p-8 sm:p-12 border border-line shadow-lg">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          <div class="lg:col-span-8">
-            <span class="text-xs font-bold uppercase tracking-wider text-accent">Comprehensive Architecture Specification</span>
-            <h3 class="text-2xl sm:text-3xl font-extrabold text-ink mt-2 mb-4">
-              Automotive Telematics &amp; Trip Intelligence Specification
-            </h3>
-            <p class="text-sm sm:text-base text-ink-muted leading-relaxed font-medium mb-6">
-              Download the complete 20-page product and engineering specification. Details CAN-bus PID discovery, FIFO lot mathematics, EPA road-load benchmarking, WiCAN Pro firmware orchestration, and Penpot UI design invariants.
-            </p>
-
-            <div class="flex flex-wrap items-center gap-4">
-              <a href="assets/spec/telematics_app_specification.pdf" download
-                 class="px-6 py-3.5 rounded-xl bg-accent text-white font-bold text-sm shadow-md hover:opacity-95 transition-theme flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span>Download Specification PDF</span>
-              </a>
-              <a href="https://github.com/NPontious/PowerTrip" target="_blank" rel="noopener noreferrer"
-                 class="px-6 py-3.5 rounded-xl bg-card text-ink font-bold text-sm border border-line hover:border-accent transition-theme flex items-center space-x-2">
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                </svg>
-                <span>GitHub Repository</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="lg:col-span-4 p-5 bg-card tile-radius border border-line">
-            <div class="text-xs font-bold uppercase tracking-wider text-ink-faint mb-3">Specification Metadata</div>
-            <div class="space-y-2.5 text-xs text-ink-muted">
-              <div class="flex justify-between">
-                <span>Document Version:</span>
-                <span class="font-bold text-ink">v1.0 (2026-10-01)</span>
-              </div>
-              <div class="flex justify-between">
-                <span>File Format:</span>
-                <span class="font-bold text-ink">PDF (917 KB)</span>
-              </div>
-              <div class="flex justify-between">
-                <span>CAN-Bus Ingestion:</span>
-                <span class="font-bold text-ink">WiCAN Pro ESP32-S3</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Backend Architecture:</span>
-                <span class="font-bold text-ink">Self-Hosted Docker</span>
-              </div>
-              <div class="flex justify-between">
-                <span>License:</span>
-                <span class="font-bold text-ink">MIT Open Source</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="py-12 bg-canvas border-t border-line transition-theme">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-        
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <span class="text-base font-extrabold text-ink">PowerTrip</span>
-          <span class="text-xs text-ink-faint">&bull; Autonomous Automotive Telematics</span>
-        </div>
-
-        <p class="text-xs text-ink-muted text-center md:text-right max-w-md">
-          Privacy-First Physical Reality Telematics. Your vehicle data remains exclusively on your self-hosted home server. Zero commercial tracking brokers.
-        </p>
-
-      </div>
+  <footer>
+    <div class="wrap">
+      <span>PowerTrip</span>
+      <a href="https://github.com/NPontious/PowerTrip">github.com/NPontious/PowerTrip</a>
     </div>
   </footer>
 
-  <!-- Lightbox Modal for Full-Resolution Penpot Screens -->
-  <div id="lightboxModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-4 sm:p-8"
-       onclick="closeLightboxOnBackdrop(event)">
-    <div class="relative max-w-5xl w-full max-h-[90vh] flex flex-col items-center">
-      
-      <!-- Close Button -->
-      <button type="button" onclick="closeLightbox()" aria-label="Close modal"
-              class="absolute -top-12 right-0 p-2 text-white hover:text-gray-300 transition-colors">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      <!-- Lightbox Image -->
-      <img id="lightboxImg" src="assets/screens/mobile-home-fusion.png" alt="Full Resolution Screen"
-           class="max-h-[82vh] max-w-full object-contain rounded-xl shadow-2xl border border-white/10">
-
-      <div class="mt-3 text-xs text-gray-300 font-medium">
-        Press ESC or click outside to dismiss
-      </div>
-    </div>
-  </div>
-
-  <!-- Interactive JavaScript Application Logic -->
   <script>
-    // Vehicle database with specs, images, colors, and layout rules
-    const VEHICLES = {
-      fusion: {
-        id: "fusion",
-        name: "Ford Fusion Energi",
-        badge: "Plug-in Hybrid (PHEV)",
-        desc: "Dual physical energy stores tracked simultaneously. Overnight home charging priced at utility rate; gasoline priced per fill-up.",
-        image: "assets/vehicles/fusion.png",
-        accent: "#1E6FD9",
-        accentDark: "#60A5FA",
-        odometer: "84,210 mi",
-        efficiency: "4.82 mi/kWh · 36.1 mpg",
-        cost: "9.7¢ / mi",
-        ruleCallout: "PHEV Powertrain Invariant: Dual sub-cards (Electric Battery % + Gas Tank %) with side-by-side half-width bars (130px each).",
-        cardHtml: `
-          <div class="grid grid-cols-2 gap-4">
-            <!-- Electric Battery Sub-Card -->
-            <div class="p-4 bg-canvas tile-radius border border-line">
-              <div class="flex items-center justify-between text-xs text-ink-muted mb-2">
-                <span class="font-bold">Electric Battery</span>
-                <span class="font-extrabold text-accent">85%</span>
-              </div>
-              <div class="text-lg font-extrabold text-ink mb-2">21 mi</div>
-              <div class="bg-track h-3 rounded-full overflow-hidden bar-half-width">
-                <div class="bg-accent h-full w-[85%] rounded-full"></div>
-              </div>
-              <div class="text-xs text-ink-faint mt-2">130px progress track</div>
-            </div>
-
-            <!-- Gas Tank Sub-Card -->
-            <div class="p-4 bg-canvas tile-radius border border-line">
-              <div class="flex items-center justify-between text-xs text-ink-muted mb-2">
-                <span class="font-bold">Gas Tank</span>
-                <span class="font-extrabold text-ink">92%</span>
-              </div>
-              <div class="text-lg font-extrabold text-ink mb-2">540 mi</div>
-              <div class="bg-track h-3 rounded-full overflow-hidden bar-half-width">
-                <div class="bg-[#374151] h-full w-[92%] rounded-full"></div>
-              </div>
-              <div class="text-xs text-ink-faint mt-2">130px progress track</div>
-            </div>
-          </div>
-        `
-      },
-      ex30: {
-        id: "ex30",
-        name: "Volvo EX30",
-        badge: "Battery Electric Vehicle (EV)",
-        desc: "100% fuel-free miles. Pure battery pack voltage and current measured from BECM without synthetic drag models.",
-        image: "assets/vehicles/ex30.png",
-        accent: "#0C9660",
-        accentDark: "#34D399",
-        odometer: "12,450 mi",
-        efficiency: "4.05 mi/kWh",
-        cost: "5.4¢ / mi",
-        ruleCallout: "EV Powertrain Invariant: Full-width Battery SoC card (82% • 390 km) with full-width progress bar (295px).",
-        cardHtml: `
-          <div class="p-5 bg-canvas tile-radius border border-line">
-            <div class="flex items-center justify-between text-xs text-ink-muted mb-2">
-              <span class="font-bold">High-Voltage Battery Pack</span>
-              <span class="font-extrabold text-accent">82% • 390 km</span>
-            </div>
-            <div class="text-2xl font-extrabold text-ink mb-3">82% • 390 km</div>
-            <div class="bg-track h-3.5 rounded-full overflow-hidden bar-full-width">
-              <div class="bg-accent h-full w-[82%] rounded-full"></div>
-            </div>
-            <div class="flex items-center justify-between text-xs text-ink-faint mt-2">
-              <span>Full-width 295px bar</span>
-              <span>69 kWh NMC Pack</span>
-            </div>
-          </div>
-        `
-      },
-      rav4: {
-        id: "rav4",
-        name: "Toyota RAV4 Hybrid",
-        badge: "Full Hybrid Electric (HEV)",
-        desc: "Single physical fuel tank with high-frequency regenerative braking telemetry captured from CAN bus.",
-        image: "assets/vehicles/rav4.png",
-        accent: "#D97706",
-        accentDark: "#FBBF24",
-        odometer: "43,890 mi",
-        efficiency: "50.5 mpg",
-        cost: "7.2¢ / mi",
-        ruleCallout: "HEV Powertrain Invariant: Full-width Fuel Tank card (76% • 680 km) with full-width progress bar (295px). EV Drive Share % and Regen Energy Recaptured telemetry placed on the Trip Summary screen.",
-        cardHtml: `
-          <div class="p-5 bg-canvas tile-radius border border-line">
-            <div class="flex items-center justify-between text-xs text-ink-muted mb-2">
-              <span class="font-bold">Gasoline Fuel Tank</span>
-              <span class="font-extrabold text-accent">76% • 680 km</span>
-            </div>
-            <div class="text-2xl font-extrabold text-ink mb-3">76% • 680 km</div>
-            <div class="bg-track h-3.5 rounded-full overflow-hidden bar-full-width">
-              <div class="bg-accent h-full w-[76%] rounded-full"></div>
-            </div>
-            <div class="flex items-center justify-between text-xs text-ink-faint mt-2">
-              <span>Full-width 295px bar</span>
-              <span>14.5 gal Tank</span>
-            </div>
-          </div>
-          <div class="mt-3 p-3 rounded-lg bg-tile border border-line text-xs text-ink-muted">
-            Telemetry note: EV Drive Share % and Regen Energy Recaptured telemetry placed on the <strong>Trip Summary</strong> screen.
-          </div>
-        `
-      },
-      xc90: {
-        id: "xc90",
-        name: "Volvo XC90 B6",
-        badge: "Gasoline / 48V Mild Hybrid",
-        desc: "Full-width fuel tank measurement. Engine fuel-cut coasting tracked directly without synthetic MPG smoothing.",
-        image: "assets/vehicles/xc90.png",
-        accent: "#374151",
-        accentDark: "#A5B1C2",
-        odometer: "31,120 mi",
-        efficiency: "23.8 mpg",
-        cost: "14.8¢ / mi",
-        ruleCallout: "ICE (Gas) Powertrain Invariant: Full-width Fuel Tank card (76% • 580 km) with full-width progress bar (295px).",
-        cardHtml: `
-          <div class="p-5 bg-canvas tile-radius border border-line">
-            <div class="flex items-center justify-between text-xs text-ink-muted mb-2">
-              <span class="font-bold">Gasoline Fuel Tank</span>
-              <span class="font-extrabold text-accent">76% • 580 km</span>
-            </div>
-            <div class="text-2xl font-extrabold text-ink mb-3">76% • 580 km</div>
-            <div class="bg-track h-3.5 rounded-full overflow-hidden bar-full-width">
-              <div class="bg-accent h-full w-[76%] rounded-full"></div>
-            </div>
-            <div class="flex items-center justify-between text-xs text-ink-faint mt-2">
-              <span>Full-width 295px bar</span>
-              <span>18.8 gal Tank</span>
-            </div>
-          </div>
-        `
-      }
-    };
-
-    let currentVehicle = "fusion";
-
-    function selectVehicle(id) {
-      if (!VEHICLES[id]) return;
-      currentVehicle = id;
-      const v = VEHICLES[id];
-
-      // Update accent token
-      const isDark = document.documentElement.classList.contains("dark");
-      const activeColor = isDark ? v.accentDark : v.accent;
-      document.documentElement.style.setProperty("--color-accent", activeColor);
-
-      // Update Tab styling
-      ["fusion", "ex30", "rav4", "xc90"].forEach(vid => {
-        const tab = document.getElementById("tab-" + vid);
-        if (!tab) return;
-        const badge = tab.querySelector(".tab-badge");
-        if (vid === id) {
-          tab.classList.remove("border-transparent");
-          tab.classList.add("border-accent");
-          if (badge) {
-            badge.classList.remove("text-ink-faint");
-            badge.classList.add("text-accent");
-          }
-        } else {
-          tab.classList.add("border-transparent");
-          tab.classList.remove("border-accent");
-          if (badge) {
-            badge.classList.remove("text-accent");
-            badge.classList.add("text-ink-faint");
-          }
-        }
-      });
-
-      // Update presentation elements
-      document.getElementById("vehicleHeroImg").src = v.image;
-      document.getElementById("vehicleHeroName").textContent = v.name;
-      document.getElementById("vehiclePowertrainBadge").textContent = v.badge;
-      document.getElementById("vehicleHeroDesc").textContent = v.desc;
-      document.getElementById("statOdometer").textContent = v.odometer;
-      document.getElementById("statEfficiency").textContent = v.efficiency;
-      document.getElementById("statCost").textContent = v.cost;
-
-      // Update powertrain card container & callout
-      document.getElementById("powertrainCardContainer").innerHTML = v.cardHtml;
-      document.getElementById("powertrainRuleCallout").textContent = v.ruleCallout;
-    }
-
-    // Theme Management (Light / Dark)
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle("dark");
-      localStorage.setItem("powertrip_theme", isDark ? "dark" : "light");
-      updateThemeUI(isDark);
-      selectVehicle(currentVehicle);
-    }
-
-    function updateThemeUI(isDark) {
-      const sunIcon = document.getElementById("sunIcon");
-      const moonIcon = document.getElementById("moonIcon");
-      if (isDark) {
-        sunIcon.classList.remove("hidden");
-        moonIcon.classList.add("hidden");
-      } else {
-        sunIcon.classList.add("hidden");
-        moonIcon.classList.remove("hidden");
-      }
-    }
-
-    // Initialize Theme
-    (function initTheme() {
-      const saved = localStorage.getItem("powertrip_theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const isDark = saved === "dark" || (!saved && prefersDark);
-      if (isDark) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      updateThemeUI(isDark);
-      document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
-    })();
-
-    // Showcase State Management
-    let currentViewMode = "mobile"; // 'mobile' | 'desktop'
-    let currentScreen = "home"; // 'home' | 'trip' | 'analysis' | 'spending' | 'garage'
-
-    const SCREEN_DATA = {
-      mobile: {
-        home: {
-          src: "assets/screens/mobile-home-fusion.png",
-          title: "Cockpit Home Screen (Mobile)",
-          desc: "Multi-vehicle fleet view with real-time fuel and battery stores, rolling 30-day energy expenditure, and pending refill prompts."
-        },
-        trip: {
-          src: "assets/screens/mobile-trip-rav4.png",
-          title: "Trip Summary (Mobile)",
-          desc: "Answer-first trip summary featuring 4 core numbers: cost per mile, efficiency, Fuel-free miles %, and Regen in Wh per mile compared to your typical."
-        },
-        analysis: {
-          src: "assets/screens/mobile-trip-rav4.png",
-          title: "Deep Analysis (Mobile)",
-          desc: "Detailed telemetry view: speed bands, acceleration heatmaps, synchronous power timeline, and elevation profiles."
-        },
-        spending: {
-          src: "assets/screens/mobile-spending.png",
-          title: "Spending & Refills (Mobile)",
-          desc: "Lot-based expenditure calendar and refill list. Tracks electricity lots by home utility rate and gasoline lots by fill-up receipt."
-        },
-        garage: {
-          src: "assets/screens/mobile-garage-dtc.png",
-          title: "My Garage & DTC Diagnostics (Mobile)",
-          desc: "Vehicle telemetry health, pending DTC alerts (P0420 Catalytic Converter Efficiency), plain-English repair guidance, and WiCAN status."
-        }
-      },
-      desktop: {
-        home: {
-          src: "assets/screens/desktop-dashboard.png",
-          title: "Cockpit Dashboard (Web Desktop)",
-          desc: "Desktop command center: full fleet view, weekly efficiency dumbbell plots, 30-day expense breakdown, and active alerts."
-        },
-        trip: {
-          src: "assets/screens/desktop-trip-analysis.png",
-          title: "Trip Summary & Analysis (Web Desktop)",
-          desc: "1440px wide layout with synchronous speed vs. fuel flow hexbins, speed band dumbbells, and trip takeaway summary."
-        },
-        analysis: {
-          src: "assets/screens/desktop-trip-analysis.png",
-          title: "Deep Analysis (Web Desktop)",
-          desc: "Speed × acceleration cost heatmap, synchronous timeline of battery kW and fuel gal/h, and elevation profile lined up to the second."
-        },
-        spending: {
-          src: "assets/screens/desktop-dashboard.png",
-          title: "Spending & Fuel Lots (Web Desktop)",
-          desc: "Lot-based fleet spending table, weekly cost per mile distributions, and unpriced refill reconciliation queue."
-        },
-        garage: {
-          src: "assets/screens/desktop-dashboard.png",
-          title: "Garage Fleet & Diagnostics (Web Desktop)",
-          desc: "Desktop garage view monitoring OBD-II scanner connectivity, sensor verification checks, and DTC trouble codes."
-        }
-      }
-    };
-
-    function setViewMode(mode) {
-      currentViewMode = mode;
-      const btnMobile = document.getElementById("btn-mode-mobile");
-      const btnDesktop = document.getElementById("btn-mode-desktop");
-      const wrapper = document.getElementById("mockupWrapper");
-      const header = document.getElementById("desktopFrameHeader");
-
-      if (mode === "mobile") {
-        btnMobile.classList.add("bg-tile", "text-ink");
-        btnMobile.classList.remove("text-ink-muted");
-        btnDesktop.classList.remove("bg-tile", "text-ink");
-        btnDesktop.classList.add("text-ink-muted");
-
-        wrapper.classList.remove("desktop-mockup-frame");
-        wrapper.classList.add("phone-mockup-frame");
-        header.classList.add("hidden");
-      } else {
-        btnDesktop.classList.add("bg-tile", "text-ink");
-        btnDesktop.classList.remove("text-ink-muted");
-        btnMobile.classList.remove("bg-tile", "text-ink");
-        btnMobile.classList.add("text-ink-muted");
-
-        wrapper.classList.remove("phone-mockup-frame");
-        wrapper.classList.add("desktop-mockup-frame");
-        header.classList.remove("hidden");
-      }
-
-      renderShowcase();
-    }
-
-    function selectScreen(screenKey) {
-      currentScreen = screenKey;
-      
-      // Update screen buttons
-      const screenKeys = ["home", "trip", "analysis", "spending", "garage"];
-      screenKeys.forEach(key => {
-        const btn = document.getElementById("screen-btn-" + key);
-        if (!btn) return;
-        if (key === screenKey) {
-          btn.classList.add("bg-tile", "text-accent");
-          btn.classList.remove("text-ink-muted");
-        } else {
-          btn.classList.remove("bg-tile", "text-accent");
-          btn.classList.add("text-ink-muted");
-        }
-      });
-
-      renderShowcase();
-    }
-
-    function renderShowcase() {
-      const data = SCREEN_DATA[currentViewMode][currentScreen];
-      if (!data) return;
-      document.getElementById("activeShowcaseImg").src = data.src;
-      document.getElementById("screenExplainerTitle").textContent = data.title;
-      document.getElementById("screenExplainerDesc").textContent = data.desc;
-    }
-
-    // Lightbox Modal Controls
-    function openLightbox() {
-      const activeSrc = document.getElementById("activeShowcaseImg").src;
-      document.getElementById("lightboxImg").src = activeSrc;
-      const modal = document.getElementById("lightboxModal");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-      document.body.style.overflow = "hidden";
-    }
-
-    function closeLightbox() {
-      const modal = document.getElementById("lightboxModal");
-      modal.classList.remove("flex");
-      modal.classList.add("hidden");
-      document.body.style.overflow = "";
-    }
-
-    function closeLightboxOnBackdrop(e) {
-      if (e.target.id === "lightboxModal") {
-        closeLightbox();
-      }
-    }
-
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") {
-        closeLightbox();
-      }
+    document.getElementById("themeToggle").addEventListener("click", function () {
+      var root = document.documentElement;
+      var current = root.dataset.theme ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      var next = current === "dark" ? "light" : "dark";
+      root.dataset.theme = next;
+      try { localStorage.setItem("powertrip_theme", next); } catch (e) {}
     });
-
-    // Initial vehicle selection
-    selectVehicle("fusion");
   </script>
 </body>
 </html>
