@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PowerTrip</title>
+  <title>PowerTrip: the exact cost of every drive</title>
+  <link rel="canonical" href="https://npontious.github.io/PowerTrip/">
   <meta name="description" content="PowerTrip reads your car's own sensors and tells you what each drive cost, in gasoline and electricity, to the cent. Self-hosted. Nothing modeled.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
@@ -16,6 +17,18 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PowerTrip",
+    "description": "Reads your car's own sensors and tells you what each drive cost, in gasoline and electricity, to the cent. Self-hosted. Nothing modeled.",
+    "url": "https://npontious.github.io/PowerTrip/",
+    "image": "https://npontious.github.io/PowerTrip/assets/og.png",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Android, Web"
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -281,7 +294,7 @@
       <figure class="hero-shot">
         <picture>
           <source media="(max-width: 640px)" srcset="assets/screens/hero-trip-phone.webp" width="393" height="710">
-          <img src="assets/screens/hero-trip.webp" width="2160" height="1643"
+          <img src="assets/screens/hero-trip.webp" width="2160" height="1643" fetchpriority="high"
              alt="Trip page for a 37.4-mile drive from Zuma Beach to Home in a Ford Fusion Energi, showing what it cost, its efficiency against the car's typical, the route, and where the energy went.">
         </picture>
         <figcaption class="shot-note">One drive in a Ford Fusion Energi. Screens shown are from the current design.</figcaption>
