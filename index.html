@@ -4,7 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PowerTrip</title>
-  <meta name="description" content="PowerTrip reads your car's own sensors and tells you what each drive cost, in gasoline and electricity, to the cent. Self-hosted. Nothing estimated.">
+  <meta name="description" content="PowerTrip reads your car's own sensors and tells you what each drive cost, in gasoline and electricity, to the cent. Self-hosted. Nothing modeled.">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PowerTrip: what did that drive actually cost?">
+  <meta property="og:description" content="Your car's own sensors and your receipts, turned into the exact cost of every drive. Self-hosted. Nothing modeled.">
+  <meta property="og:url" content="https://npontious.github.io/PowerTrip/">
+  <meta property="og:image" content="https://npontious.github.io/PowerTrip/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -17,7 +28,7 @@
   </script>
   <style>
     /* Tokens from DESIGN.md §2. The site uses the Fusion's accent because
-       every screen shown is a Fusion screen. */
+       most screens shown are Fusion screens. */
     :root {
       --canvas: #D1D1D1;
       --card: #E3E3E3;
@@ -76,6 +87,7 @@
     a { color: var(--accent-text); }
     h1, h2, h3 { margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
     p { margin: 0; }
+    figure { margin: 0; }
     svg { flex: none; }
 
     .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
@@ -91,7 +103,7 @@
     }
     .bar { display: flex; align-items: center; gap: 24px; height: 64px; }
     .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 18px; }
-    .mark { width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; display: grid; place-items: center; }
+    .mark { width: 32px; height: 32px; border-radius: 10px; background: #1E6FD9; color: #fff; display: grid; place-items: center; }
     nav { display: none; gap: 24px; margin-left: auto; }
     nav a { color: var(--ink-muted); text-decoration: none; font-size: 14px; font-weight: 600; }
     nav a:hover { color: var(--ink); }
@@ -114,17 +126,10 @@
     }
 
     /* Hero */
-    .hero { display: grid; gap: 40px; align-items: center; padding-top: 48px; padding-bottom: 64px; }
-    @media (min-width: 900px) { .hero { grid-template-columns: 1.15fr 0.85fr; padding-top: 72px; padding-bottom: 88px; } }
-    .status {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 12px; border-radius: 999px;
-      background: var(--tile); border: 1px solid var(--line);
-      font-size: 13px; font-weight: 600; color: var(--ink-muted);
-    }
-    .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-    .hero h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; margin: 20px 0 16px; }
-    .lede { font-size: 18px; color: var(--ink-muted); max-width: 34em; }
+    .hero { padding-top: 56px; padding-bottom: 64px; }
+    .hero-text { max-width: 44em; }
+    .hero h1 { font-size: clamp(36px, 6vw, 60px); font-weight: 800; margin-bottom: 16px; }
+    .lede { font-size: 18px; color: var(--ink-muted); max-width: 36em; }
     .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -136,16 +141,16 @@
     .btn-primary:hover { background: #185BB3; }
     .btn-plain { background: var(--tile); color: var(--ink); border-color: var(--line); }
     .btn-plain:hover { border-color: var(--accent); }
-    .hero-shot { justify-self: center; width: min(100%, 340px); }
-
-    .shot { border-radius: 28px; box-shadow: var(--shot-shadow); }
-    .shot-wide { border-radius: 16px; }
+    .hero-shot { margin-top: 48px; }
+    .hero-shot img { border-radius: 16px; box-shadow: var(--shot-shadow); width: 100%; }
+    @media (max-width: 640px) { .hero-shot img { max-width: 340px; margin: 0 auto; border-radius: 24px; } .shot-note { text-align: center; } }
+    .shot-note { margin-top: 12px; font-size: 13px; color: var(--ink-muted); }
 
     /* Sections */
-    section { padding: 64px 0; border-top: 1px solid var(--line); }
+    section { padding: 72px 0; border-top: 1px solid var(--line); }
     .eyebrow { font-size: 13px; font-weight: 700; color: var(--accent-text); letter-spacing: 0.04em; text-transform: uppercase; }
-    .section-head { max-width: 40em; margin-bottom: 32px; }
-    .section-head h2 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; margin: 8px 0 12px; }
+    .section-head { max-width: 40em; margin-bottom: 40px; }
+    .section-head h2 { font-size: clamp(26px, 4vw, 36px); font-weight: 800; margin: 8px 0 12px; }
     .section-head p { color: var(--ink-muted); font-size: 17px; }
 
     .card { background: var(--card); border-radius: 24px; padding: 24px; }
@@ -156,33 +161,45 @@
     @media (min-width: 640px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1000px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
 
-    .point h3 { font-size: 18px; font-weight: 700; margin: 14px 0 8px; }
+    .point h3 { font-size: 17px; font-weight: 700; margin: 14px 0 6px; }
     .point p { color: var(--ink-muted); font-size: 15px; }
     .point-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
 
-    /* Screens */
-    .screens-wide { margin-bottom: 32px; }
-    .screens-phones { display: grid; gap: 32px; max-width: 320px; margin: 0 auto; }
-    @media (min-width: 640px) { .screens-phones { grid-template-columns: repeat(3, 1fr); max-width: none; } }
-    figure { margin: 0; }
-    figure a { display: block; }
-    figcaption { margin-top: 14px; font-size: 14px; color: var(--ink-muted); }
-    figcaption strong { display: block; color: var(--ink); font-size: 15px; font-weight: 700; }
-    .phone-crop { aspect-ratio: 393 / 700; overflow: hidden; border-radius: 22px; box-shadow: var(--shot-shadow); }
-    .phone-crop img { width: 100%; }
-    .note { margin-top: 28px; font-size: 14px; color: var(--ink-muted); max-width: 48em; }
+    /* Feature rows: text beside the screen that shows it */
+    .features { display: grid; gap: 64px; }
+    .feature { display: grid; gap: 24px; align-items: center; }
+    @media (min-width: 860px) {
+      .feature { grid-template-columns: 5fr 6fr; gap: 56px; }
+      .feature:nth-child(even) .feature-media { order: -1; }
+    }
+    .feature h3 { font-size: clamp(22px, 3vw, 26px); font-weight: 800; margin-bottom: 12px; }
+    .feature p { color: var(--ink-muted); font-size: 17px; }
+    .feature-media { background: var(--card); border-radius: 24px; padding: 24px; display: grid; place-items: center; }
+    .feature-media img { border-radius: 16px; box-shadow: var(--shot-shadow); }
+    .feature-media .phone { max-width: 300px; border-radius: 24px; }
+    .also { margin-top: 64px; }
+    .also-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
 
-    /* Cars */
+    /* Comparison */
+    .compare h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .compare .examples { font-size: 13px; font-weight: 600; color: var(--ink-faint); margin-bottom: 10px; }
+    .compare p { font-size: 15px; color: var(--ink-muted); }
+    .compare .ours { margin-top: 12px; color: var(--ink); font-weight: 600; }
+
+    /* Compatibility */
+    .tiers { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    @media (min-width: 760px) { .tiers { grid-template-columns: repeat(3, 1fr); } }
+    .tiers li { background: var(--tile); border-radius: 16px; padding: 20px; }
+    .tiers h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .tiers p { font-size: 15px; color: var(--ink-muted); }
+    .tiers .shows { margin-top: 10px; color: var(--ink); font-weight: 600; }
+    .compat-note { margin-top: 16px; font-size: 15px; color: var(--ink-muted); max-width: 48em; }
+    .cars { margin-top: 48px; }
+    .cars-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .cars-sub { font-size: 15px; color: var(--ink-muted); margin-bottom: 16px; }
     .car h3 { font-size: 17px; font-weight: 700; }
     .car .kind { font-size: 13px; font-weight: 600; color: var(--ink-faint); margin-bottom: 4px; }
     .car p { margin-top: 10px; font-size: 15px; color: var(--ink-muted); }
-    .slots { margin-top: 24px; }
-    .slots h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .slots > p { color: var(--ink-muted); font-size: 15px; }
-    .slot-list { display: grid; gap: 12px; margin-top: 16px; padding: 0; list-style: none; }
-    @media (min-width: 760px) { .slot-list { grid-template-columns: repeat(4, 1fr); } }
-    .slot-list li { background: var(--tile); border-radius: 14px; padding: 14px 16px; font-size: 14px; color: var(--ink-muted); }
-    .slot-list strong { display: block; color: var(--ink); font-size: 15px; }
 
     /* Steps */
     .steps { counter-reset: step; display: grid; gap: 16px; padding: 0; margin: 0; list-style: none; }
@@ -201,12 +218,12 @@
     .privacy p { font-size: 15px; color: var(--ink-muted); }
     .privacy strong { color: var(--ink); }
 
-    /* Spec */
-    .spec { display: grid; gap: 24px; align-items: center; }
-    @media (min-width: 760px) { .spec { grid-template-columns: 1fr auto; } }
-    .spec h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-    .spec p { color: var(--ink-muted); font-size: 15px; max-width: 40em; }
-    .spec .meta { margin-top: 10px; font-size: 13px; color: var(--ink-muted); }
+    /* Follow */
+    .follow { display: grid; gap: 24px; align-items: center; }
+    @media (min-width: 760px) { .follow { grid-template-columns: 1fr auto; } }
+    .follow h2 { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+    .follow p { color: var(--ink-muted); font-size: 16px; max-width: 40em; }
+    .follow .spec-link { margin-top: 12px; font-size: 15px; }
 
     footer { padding: 32px 0 48px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-muted); }
     footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
@@ -227,10 +244,10 @@
         PowerTrip
       </a>
       <nav aria-label="Sections">
-        <a href="#screens">Screens</a>
-        <a href="#cars">Cars</a>
+        <a href="#features">Features</a>
+        <a href="#compare">Why PowerTrip</a>
+        <a href="#your-car">Your car</a>
         <a href="#how">How it works</a>
-        <a href="#spec">Spec</a>
       </nav>
       <div class="actions">
         <a class="icon-btn" href="https://github.com/NPontious/PowerTrip" aria-label="PowerTrip on GitHub">
@@ -246,140 +263,206 @@
 
   <main>
     <div class="wrap hero">
-      <div>
-        <span class="status">In development &middot; US only &middot; Android and web</span>
+      <div class="hero-text">
         <h1>What did that drive actually cost?</h1>
         <p class="lede">
           PowerTrip reads your car's own sensors and tells you what each drive cost,
           in gasoline and electricity, to the cent. Every number is measured by the car
-          or worked out from your receipts. Nothing is modeled or estimated.
+          or worked out from your receipts. Nothing is modeled.
         </p>
         <div class="buttons">
-          <a class="btn btn-primary" href="#screens">
-            See the screens
+          <a class="btn btn-primary" href="#features">
+            See what it does
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14m0 0l-6-6m6 6l6-6"/></svg>
           </a>
-          <a class="btn btn-plain" href="assets/spec/telematics_app_specification.pdf">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-            Read the spec (PDF)
-          </a>
+          <a class="btn btn-plain" href="#your-car">Will it work with my car?</a>
         </div>
       </div>
-      <img class="hero-shot shot" src="assets/screens/phone-home.png" width="393" height="995"
-           alt="PowerTrip home screen for a Ford Fusion Energi: efficiency against your typical, a detected fill-up waiting for its receipt, battery and fuel levels, and $8.27 spent over the last 30 days.">
+      <figure class="hero-shot">
+        <picture>
+          <source media="(max-width: 640px)" srcset="assets/screens/hero-trip-phone.webp" width="393" height="710">
+          <img src="assets/screens/hero-trip.webp" width="2160" height="1643"
+             alt="Trip page for a 37.4-mile drive from Zuma Beach to Home in a Ford Fusion Energi, showing what it cost, its efficiency against the car's typical, the route, and where the energy went.">
+        </picture>
+        <figcaption class="shot-note">One drive in a Ford Fusion Energi. Screens shown are from the current design.</figcaption>
+      </figure>
     </div>
 
-    <section>
+    <section id="features">
       <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">What it does</span>
+          <h2>Every drive, accounted for</h2>
+          <p>No "saved vs. a gas car", no guessed air drag, no expected MPGe. Just what the car did and what it cost you.</p>
+        </div>
+
+        <div class="features">
+          <div class="feature">
+            <div>
+              <h3>The cost of every drive</h3>
+              <p>Split between electricity and gasoline, priced from what you actually paid, oldest fuel first. A free charge costs exactly $0, and drive totals add up to the cent.</p>
+            </div>
+            <div class="feature-media">
+              <img src="assets/screens/feat-cost.webp" width="361" height="484" loading="lazy"
+                   alt="Where it went: the drive's cost split into electricity and gasoline, with stopped energy and regen listed separately.">
+            </div>
+          </div>
+
+          <div class="feature">
+            <div>
+              <h3>Fill-ups and charges, found for you</h3>
+              <p>When the tank rises while you're parked, PowerTrip notices and asks for the total from the receipt. Charging at home is measured and priced on its own, so you only type in what the car can't know.</p>
+            </div>
+            <div class="feature-media">
+              <img class="phone" src="assets/screens/feat-fillup.webp" width="393" height="852" loading="lazy"
+                   alt="Fill-up sheet: the car detected 9.6 gallons added while parked and asks for the total cost from the receipt.">
+            </div>
+          </div>
+
+          <div class="feature">
+            <div>
+              <h3>Where the energy went, minute by minute</h3>
+              <p>Battery power and fuel flow across the whole drive, lined up with speed and hills. See when the engine ran, when you were stopped, and when regen put energy back.</p>
+            </div>
+            <div class="feature-media">
+              <img src="assets/screens/feat-minute.webp" width="361" height="546" loading="lazy"
+                   alt="Minute by minute chart of battery power and fuel flow, with strips for engine on, regen and stopped.">
+            </div>
+          </div>
+
+          <div class="feature">
+            <div>
+              <h3>Compared with your own drives</h3>
+              <p>Every drive is held up against your typical for the same car: efficiency in each speed band, cost per mile, and fuel-free share. Not a sticker number, and never a score.</p>
+            </div>
+            <div class="feature-media">
+              <img src="assets/screens/feat-compare.webp" width="361" height="426" loading="lazy"
+                   alt="This drive against your typical, by speed band, for electricity and gasoline.">
+            </div>
+          </div>
+
+          <div class="feature">
+            <div>
+              <h3>Spending over time</h3>
+              <p>What you spent on energy, cost per mile week by week, a calendar of what each day cost, and every fill-up and charge in one list.</p>
+            </div>
+            <div class="feature-media">
+              <img src="assets/screens/feat-spending.webp" width="766" height="366" loading="lazy"
+                   alt="Spending page: money spent on energy over 30 days, cost per mile by week, and a calendar of daily spending.">
+            </div>
+          </div>
+        </div>
+
+        <div class="also">
+          <h3 class="also-title">Also in PowerTrip</h3>
+          <div class="grid-3">
+            <div class="tile point">
+              <div class="point-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <h3>Trouble codes in plain English</h3>
+              <p>Which system is complaining, when it was read, during which drive, and whether the car is safe to drive. No clear button that hides the problem.</p>
+            </div>
+            <div class="tile point">
+              <div class="point-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </div>
+              <h3>All your cars in one garage</h3>
+              <p>Each car keeps its own history and typical, and you can compare cost per mile across all of them.</p>
+            </div>
+            <div class="tile point">
+              <div class="point-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </div>
+              <h3>Your data, your way</h3>
+              <p>Merge a drive that got split by a quick stop, and export a drive or your whole history as CSV.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="compare">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Why PowerTrip</span>
+          <h2>Why not just use what's out there?</h2>
+          <p>Each kind of car app answers a different question. None of them can tell you what one drive cost.</p>
+        </div>
         <div class="grid-3">
-          <div class="tile point">
-            <div class="point-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            </div>
-            <h3>Only what was measured</h3>
-            <p>Battery power, fuel flow, speed and levels come straight from the car. No "saved vs. a gas car", no air-drag guesses, no expected MPGe.</p>
+          <div class="tile compare">
+            <h3>Fuel log apps</h3>
+            <div class="examples">Fuelly, GasBuddy</div>
+            <p>You type in the odometer at every fill-up and get an average per tank. They can't price a single drive, and can't split a plug-in hybrid's electricity from its gas.</p>
+            <p class="ours">PowerTrip prices each drive from the car's own readings.</p>
           </div>
-          <div class="tile point">
-            <div class="point-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-            </div>
-            <h3>Costs from your receipts</h3>
-            <p>Each fill-up and charge is priced from what you paid, and used oldest first. A free charge costs exactly $0, and drive totals add up to the cent.</p>
+          <div class="tile compare">
+            <h3>OBD dashboard apps</h3>
+            <div class="examples">Torque Pro, OBD Fusion</div>
+            <p>Live gauges for a phone on the windshield while you drive. Lots of numbers in the moment, nothing about what the drive cost afterwards.</p>
+            <p class="ours">PowerTrip is for after the drive, with no phone in the car.</p>
           </div>
-          <div class="tile point">
-            <div class="point-icon" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h6"/></svg>
-            </div>
-            <h3>Compared with your typical</h3>
-            <p>A drive is judged against the median of your car's other drives, not against a sticker number. No scores, no scolding.</p>
+          <div class="tile compare">
+            <h3>Carmaker apps</h3>
+            <div class="examples">The app that came with your car</div>
+            <p>Often a monthly subscription, with your driving history kept on the carmaker's servers, and estimated figures rather than what you paid.</p>
+            <p class="ours">PowerTrip runs on your server and uses your receipts.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="screens">
+    <section id="your-car">
       <div class="wrap">
         <div class="section-head">
-          <span class="eyebrow">Screens</span>
-          <h2>One drive, start to finish</h2>
-          <p>A 37-mile drive in a Ford Fusion Energi: what it cost, how much was electric, and where the energy went.</p>
+          <span class="eyebrow">Your car</span>
+          <h2>Will it work with my car?</h2>
+          <p>Almost any US car from 2008 on reports speed, distance and fuel level, and that's enough for a cost per drive. How much detail you get depends on what else your car shares.</p>
         </div>
+        <ul class="tiers">
+          <li>
+            <h3>Measured</h3>
+            <p>The car reports battery power and fuel flow second by second.</p>
+            <p class="shows">You get everything: cost, efficiency, and where every bit of energy went.</p>
+          </li>
+          <li>
+            <h3>Calculated</h3>
+            <p>Fuel is worked out from the engine's airflow, or battery energy from the change in charge level.</p>
+            <p class="shows">You get cost and efficiency per drive, labeled as calculated.</p>
+          </li>
+          <li>
+            <h3>From fill-ups</h3>
+            <p>The car only reports its fuel or charge level.</p>
+            <p class="shows">You get cost per drive from your fill-ups and charges, labeled as such, with no breakdown.</p>
+          </li>
+        </ul>
+        <p class="compat-note">Every drive says which of these it got. Anything the data can't support is left out rather than guessed. The 2017 Ford Fusion Energi is the reference car, with its battery signals verified on the real car.</p>
 
-        <figure class="screens-wide">
-          <a href="assets/screens/web-trip.png">
-            <img class="shot shot-wide" src="assets/screens/web-trip.png" width="1440" height="1250" loading="lazy"
-                 alt="Web trip page for Zuma Beach to Home: this drive's cost per mile, efficiency and electric share against the car's other drives, the route split into electric and engine miles, and where the energy went.">
-          </a>
-          <figcaption><strong>Trip page, web</strong>How this drive compares with your others, the route split by electric and engine miles, and what each energy source cost.</figcaption>
-        </figure>
-
-        <div class="screens-phones">
-          <figure>
-            <a href="assets/screens/phone-spending.png" class="phone-crop">
-              <img src="assets/screens/phone-spending.png" width="393" height="1340" loading="lazy"
-                   alt="Spending screen: $8.27 over 30 days split into electricity and gasoline, cost per mile by week, a calendar of spending by day, and recent fill-ups and charges.">
-            </a>
-            <figcaption><strong>Spending</strong>Every fill-up and charge, and what you paid per mile each week.</figcaption>
-          </figure>
-          <figure>
-            <a href="assets/screens/phone-fillup.png" class="phone-crop">
-              <img src="assets/screens/phone-fillup.png" width="393" height="852" loading="lazy"
-                   alt="Fill-up sheet: the car detected 9.6 gallons added while parked and asks for the total from the receipt.">
-            </a>
-            <figcaption><strong>Fill-up details</strong>The car notices the tank rose. You add the total from the receipt.</figcaption>
-          </figure>
-          <figure>
-            <a href="assets/screens/phone-car.png" class="phone-crop">
-              <img src="assets/screens/phone-car.png" width="393" height="1444" loading="lazy"
-                   alt="Car page: efficiency at steady speeds, energy used and returned on every drive, and the same route compared drive by drive.">
-            </a>
-            <figcaption><strong>Car page</strong>Efficiency by speed and the same route compared over time.</figcaption>
-          </figure>
-        </div>
-
-        <p class="note">These are design boards from Penpot, not the finished apps. Some labels on them are older than the current vocabulary in the spec.</p>
-      </div>
-    </section>
-
-    <section id="cars">
-      <div class="wrap">
-        <div class="section-head">
-          <span class="eyebrow">Cars</span>
-          <h2>Electric, plug-in, hybrid or gas</h2>
-          <p>The same words mean the same thing on every car. A car only adds a line when it has a second energy source.</p>
-        </div>
-        <div class="grid-4">
-          <div class="tile car">
-            <div class="kind">Electric</div>
-            <h3>Volvo EX30</h3>
-            <p>Efficiency in mi/kWh. Every mile is a fuel-free mile.</p>
+        <div class="cars">
+          <h3 class="cars-title">Electric, plug-in, hybrid or gas</h3>
+          <p class="cars-sub">The same words mean the same thing on every car. A car only adds a line when it has a second energy source.</p>
+          <div class="grid-4">
+            <div class="tile car">
+              <div class="kind">Electric</div>
+              <h3>Volvo EX30</h3>
+              <p>Efficiency in mi/kWh. Every mile is a fuel-free mile.</p>
+            </div>
+            <div class="tile car">
+              <div class="kind">Plug-in hybrid</div>
+              <h3>Ford Fusion Energi</h3>
+              <p>mi/kWh and mpg side by side, each priced from its own charges and fill-ups.</p>
+            </div>
+            <div class="tile car">
+              <div class="kind">Hybrid</div>
+              <h3>Toyota RAV4 Hybrid</h3>
+              <p>mpg, plus the miles it moved with no fuel burning and the energy regen put back per mile.</p>
+            </div>
+            <div class="tile car">
+              <div class="kind">Gas</div>
+              <h3>Volvo XC90 B6</h3>
+              <p>mpg. Coasting with the fuel cut off still counts as fuel-free.</p>
+            </div>
           </div>
-          <div class="tile car">
-            <div class="kind">Plug-in hybrid</div>
-            <h3>Ford Fusion Energi</h3>
-            <p>mi/kWh and mpg side by side, each priced from its own charges and fill-ups.</p>
-          </div>
-          <div class="tile car">
-            <div class="kind">Hybrid</div>
-            <h3>Toyota RAV4 Hybrid</h3>
-            <p>mpg, plus the miles it moved with no fuel burning and the energy regen put back.</p>
-          </div>
-          <div class="tile car">
-            <div class="kind">Gas</div>
-            <h3>Volvo XC90 B6</h3>
-            <p>mpg. Coasting with the fuel cut off still counts as fuel-free.</p>
-          </div>
-        </div>
-
-        <div class="card slots">
-          <h3>Four numbers on every trip</h3>
-          <p>In the same order on every car. When one doesn't apply, the screen says so instead of hiding it.</p>
-          <ul class="slot-list">
-            <li><strong>Cost per mile</strong>From your receipts</li>
-            <li><strong>Efficiency</strong>mi/kWh, mpg, or both</li>
-            <li><strong>Fuel-free</strong>Share of moving miles with no fuel burning</li>
-            <li><strong>Regen</strong>Share of the battery's output put back</li>
-          </ul>
         </div>
       </div>
     </section>
@@ -388,43 +471,43 @@
       <div class="wrap">
         <div class="section-head">
           <span class="eyebrow">How it works</span>
-          <h2>No phone in the loop</h2>
-          <p>A small adapter in the car's OBD port does the logging, and your own server does the math.</p>
+          <h2>From the car to your own server</h2>
+          <p>Two pieces do the work: an adapter in the car and a server you run at home. We recommend the WiCAN Pro adapter.</p>
         </div>
         <ol class="steps">
           <li class="tile">
-            <h3>The adapter logs while you drive</h3>
-            <p>A WiCAN Pro in the OBD-II port records the car's signals to its own memory. It needs no phone and no cell plan, and sleeps when the car is off.</p>
+            <h3>The adapter logs every drive</h3>
+            <p>A WiCAN Pro in the OBD-II port records the car's signals while you drive, on its own. It needs no phone and no cell plan, and sleeps when the car is off.</p>
           </li>
           <li class="tile">
             <h3>It syncs when you get home</h3>
-            <p>Parked on your Wi-Fi, it uploads the drive to your home server in a few seconds.</p>
+            <p>Parked on your Wi-Fi, it uploads the drive to your server in a few seconds.</p>
           </li>
           <li class="tile">
-            <h3>Your server prices the drive</h3>
-            <p>The server works out energy and cost per drive. The Android app and the web page only show what it calculated.</p>
+            <h3>Your server does the math</h3>
+            <p>The PowerTrip server runs in Docker on hardware you own: a NAS, a Raspberry Pi or a home server. It prices each drive and keeps the whole history.</p>
           </li>
         </ol>
         <div class="card privacy">
           <div class="point-icon" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           </div>
-          <p><strong>Your data stays on your server.</strong> There's no PowerTrip cloud, and the app never asks for your phone's location. Position comes only from the car or the adapter.</p>
+          <p><strong>Your data stays on your server.</strong> There's no PowerTrip cloud between your car and you, and nobody else sees where you drive.</p>
         </div>
       </div>
     </section>
 
-    <section id="spec">
+    <section id="follow">
       <div class="wrap">
-        <div class="card spec">
+        <div class="card follow">
           <div>
-            <h2>The full specification</h2>
-            <p>Signals read from each car, how the cost ledger works, the adapter's logging and sync, and the design rules for every screen.</p>
-            <p class="meta">PDF &middot; 20 pages &middot; 917 KB</p>
+            <h2>Follow along</h2>
+            <p>PowerTrip isn't released yet. Watch the repository on GitHub to see it come together.</p>
+            <p class="spec-link">Want every detail? <a href="assets/spec/telematics_app_specification.pdf">Read the full specification</a> (PDF, 20 pages).</p>
           </div>
-          <a class="btn btn-primary" href="assets/spec/telematics_app_specification.pdf" download>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            Download the spec
+          <a class="btn btn-primary" href="https://github.com/NPontious/PowerTrip">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Watch on GitHub
           </a>
         </div>
       </div>
